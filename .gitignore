@@ -6,6 +6,10 @@
 # assets/entry.png is the prebuilt v5 page for the fallback path.
 # v5: lead bodies shortened to end on a full stop (blind-test fix),
 # #6 headline "hit" to match "capsized", grid thumbnails 52 px tall.
+# v6: the map is the recolored NASA Blue Marble (assets/world-map.png,
+# built by tools/recolor_map.py); grid thumbnails 58 px tall, darkest
+# grid photos gamma-lifted by tools/brighten_grid.py. The raw NASA
+# source image stays out of the repo (downloaded to /tmp only).
 out/
 __pycache__/
 *.pyc

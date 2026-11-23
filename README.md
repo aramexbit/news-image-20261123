@@ -30,9 +30,18 @@ Mercury orbit, and Lahore's air at AQI 538. Twenty-five one-line
 briefs below the map cover the rest of the day, from Manipur to the
 Baltic.
 
-All thirteen pictures on the page are generated press photographs;
-the world map is drawn from hand-written coastline polygons in lon/lat
-(v4), projected equirectangular, so its continents are the real ones.
+All thirteen pictures on the page are generated press photographs; the
+world map is a real one. Its source is the NASA Blue Marble Next
+Generation world map with topography and bathymetry (August 2004,
+3600x1800, equirectangular, produced by Reto Stoeckli, NASA Earth
+Observatory) — NASA imagery is public domain — recolored into the page
+palette (cream land, pale-blue sea) by `tools/recolor_map.py`, which
+computes the land/ocean split from the picture itself. The recolored
+map is stored as `assets/world-map.png`; the entry program only ever
+reads that PNG, so the render needs no network. The six darkest grid
+photographs were gamma-lifted in place by `tools/brighten_grid.py`
+(v6), and Mercury's thumbnail focus was moved onto the lit planet, so
+every grid thumbnail reads at its small size.
 
 ## How it runs
 
@@ -68,9 +77,12 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
 - `main.py` — the entrypoint: composes the page, or copies the prebuilt
   image when Pillow is missing
 - `composer.py` — the renderer: masthead, UTC strip, region bar, leads,
-  grid, map (hand-written coastline polygons + numbered pins), briefs,
+  grid, map (real NASA world map + numbered pins), briefs,
   DATE CHECK
 - `stories.py` — the thirty-eight stories of 23 November 2026, each with
   its source
-- `assets/` — the prebuilt `entry.png` plus the thirteen press
-  photographs (`photo-*.webp`) and their provenance in `photos.json`
+- `assets/` — the prebuilt `entry.png`, the recolored world map
+  (`world-map.png`) plus the thirteen press photographs
+  (`photo-*.webp`) and their provenance in `photos.json`
+- `tools/` — `recolor_map.py` (NASA map into the page palette) and
+  `brighten_grid.py` (gamma lift for the darkest grid photos)

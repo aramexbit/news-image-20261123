@@ -4,15 +4,18 @@ Follows the winning pattern of the 19 November edition: masthead with a
 big date, a THE DAY IN UTC strip, a region-count bar, three big leads
 with press photographs, ten medium grid stories, a world map with
 numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
-The map is drawn from hand-written coastline polygons in lon/lat
-(v4), projected equirectangular, so its continents are the real ones.
-Grid thumbnails are 52 px tall (v5), up from 46, so the photos read
-better; every lead body ends on a full stop inside its 3-line box.
+The map is a real equirectangular world map (NASA Blue Marble, public
+domain) recolored into the page palette by tools/recolor_map.py (v6),
+so its continents are the real ones at full detail. Grid thumbnails
+are 58 px tall (v6), up from 52, and the darkest grid photos are
+gamma-lifted by tools/brighten_grid.py, so every thumbnail reads;
+every lead body ends on a full stop inside its 3-line box.
 
 Thirty-eight stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
-photographs, cropped into their boxes; the world map stays a drawn
-diagram. No network, no clock, no randomness except a fixed-seed
+photographs, cropped into their boxes; the world map is the recolored
+NASA image in assets/. No network, no clock, no randomness except a
+fixed-seed
 grain, so two runs write identical bytes.
 
 The page is saved as PNG; when the PNG would pass the 1 MiB gate it is
@@ -194,7 +197,7 @@ PHOTO_FOCUS = {
     "school": (0.5, 0.5),
     "globe": (0.5, 0.55),
     "trophy": (0.5, 0.5),
-    "mercury": (0.4, 0.5),
+    "mercury": (0.4, 0.72),  # v6: centre the lit planet, not black sky
     "smog": (0.5, 0.5),
 }
 
@@ -304,18 +307,15 @@ ART = {
     "smog": art_smog,
 }
 
-# World map, in a 290 x 166 box: lon -170..190, lat 75..-55,
-# equirectangular. Every coastline below is hand-written from the real
-# geography -- each continent keeps its true shape and place, so the
-# map reads as Earth, not blobs: North America with Florida, Baja and
-# the Hudson Bay notch; South America wide in the north, tapering
-# south; Europe with Iberia, the Italy boot and Greece; Africa as a
-# triangle with the Horn; Asia with Kamchatka, Korea, the Malay
-# peninsula, India and Arabia; Australia in its own shape; plus the
-# larger islands (UK, Ireland, Iceland, Japan, Madagascar, New
-# Zealand, Borneo, Sumatra, Java, New Guinea, the Philippines).
+# World map, in a 290 x 166 box: lon -180..180, lat 75..-55,
+# equirectangular. v6 replaces the hand-written coastline polygons of
+# v4/v5 with a real world map: NASA Blue Marble Next Generation +
+# topography + bathymetry (public domain), recolored into the page
+# palette by tools/recolor_map.py and stored as assets/world-map.png.
+# Pins are still projected from true (lon, lat) with the same function
+# as the map image, so each pin sits on the right spot of the map.
 MAP_W, MAP_H = 290, 166
-MAP_LON_W, MAP_LON_E = -170, 190
+MAP_LON_W, MAP_LON_E = -180, 180
 MAP_LAT_N, MAP_LAT_S = 75, -55
 
 
@@ -326,81 +326,19 @@ def lonlat_to_xy(lon, lat):
     return (round(x), round(y))
 
 
-CONTINENTS_LONLAT = [
-    # North America.
-    [(-168, 66), (-160, 58), (-148, 60), (-126, 49), (-124, 41),
-     (-120, 34), (-113, 28), (-109, 23), (-104, 20), (-96, 19),
-     (-90, 20), (-86, 22), (-83, 29), (-81, 26), (-79, 33), (-71, 42),
-     (-67, 45), (-62, 46), (-56, 50), (-66, 60), (-76, 63), (-86, 66),
-     (-95, 69), (-122, 70), (-138, 70), (-153, 71), (-165, 69)],
-    # Greenland.
-    [(-55, 60), (-42, 60), (-32, 68), (-22, 72), (-28, 77), (-45, 77),
-     (-56, 74), (-58, 68)],
-    # South America.
-    [(-77, 7), (-71, 12), (-60, 8), (-51, 4), (-43, -3), (-35, -8),
-     (-40, -20), (-48, -28), (-57, -38), (-65, -45), (-69, -52),
-     (-73, -50), (-73, -38), (-71, -25), (-76, -13), (-80, -4)],
-    # Europe.
-    [(-6, 36), (-9, 38), (-9, 43), (-3, 44), (-5, 48), (4, 53),
-     (8, 56), (17, 61), (21, 65), (26, 69), (29, 71), (31, 68),
-     (23, 52), (25, 46), (34, 41), (36, 38), (30, 36), (26, 38),
-     (23, 37), (20, 40), (19, 44), (17, 42), (18, 40), (16, 38),
-     (13, 42), (8, 44), (3, 43), (0, 39), (-2, 37)],
-    # United Kingdom.
-    [(-5, 50), (-3, 53), (-5, 56), (-3, 58), (-1, 57), (1, 52), (0, 50)],
-    # Ireland.
-    [(-10, 52), (-9, 55), (-6, 55), (-6, 52)],
-    # Iceland.
-    [(-22, 64), (-17, 64), (-14, 65), (-16, 66), (-21, 66), (-24, 65)],
-    # Africa.
-    [(-6, 35), (-10, 31), (-17, 20), (-16, 14), (-7, 5), (6, 4), (9, 4),
-     (13, -8), (15, -24), (18, -32), (20, -35), (32, -28), (40, -15),
-     (40, -8), (48, 2), (51, 10), (43, 12), (39, 16), (34, 27), (32, 31),
-     (19, 33), (12, 34), (10, 37), (-2, 35)],
-    # Asia.
-    [(28, 41), (51, 47), (68, 62), (75, 71), (95, 76), (112, 74),
-     (135, 72), (158, 70), (173, 67), (178, 65), (164, 56), (150, 59),
-     (139, 48), (129, 41), (127, 39), (126, 36), (124, 33), (117, 25),
-     (109, 19), (104, 10), (100, 4), (89, 22), (81, 15), (76, 8),
-     (71, 20), (63, 25), (53, 17), (45, 13), (35, 28), (31, 34)],
-    # Sumatra.
-    [(95, 5), (98, 3), (101, 0), (104, -3), (106, -6), (103, -5),
-     (100, -1), (97, 3)],
-    # Borneo.
-    [(109, 1), (113, 4), (117, 6), (119, 2), (117, -2), (113, -3),
-     (109, -1)],
-    # Java.
-    [(105, -6), (110, -7), (114, -8), (112, -8), (107, -7)],
-    # New Guinea.
-    [(131, -1), (136, -2), (141, -3), (146, -6), (150, -9), (147, -9),
-     (142, -8), (137, -6), (132, -4)],
-    # Philippines.
-    [(120, 14), (122, 16), (122, 18), (120, 18), (119, 15)],
-    # Japan.
-    [(130, 31), (132, 33), (135, 34), (138, 35), (140, 37), (141, 40),
-     (142, 43), (140, 44)],
-    # Madagascar.
-    [(44, -16), (47, -15), (50, -17), (49, -21), (46, -25), (44, -24),
-     (43, -20), (43, -17)],
-    # Australia.
-    [(113, -22), (115, -32), (118, -35), (125, -33), (132, -32),
-     (137, -35), (140, -38), (146, -39), (150, -37), (153, -31),
-     (153, -27), (149, -22), (146, -19), (142, -11), (140, -17),
-     (136, -15), (132, -12), (127, -14), (122, -17), (116, -20)],
-    # Tasmania.
-    [(145, -41), (148, -42), (148, -44), (146, -43), (144, -41)],
-    # New Zealand.
-    [(167, -45), (171, -43), (174, -41), (176, -38), (178, -38),
-     (175, -40), (171, -43), (168, -46)],
-    # Sri Lanka.
-    [(80, 6), (81, 8), (80, 10), (79, 8)],
-    # Taiwan.
-    [(120, 22), (121, 24), (121, 25), (120, 23)],
-    # Cuba.
-    [(-85, 22), (-80, 23), (-75, 21), (-74, 20), (-78, 21), (-83, 22)],
-]
-CONTINENTS = [[lonlat_to_xy(lon, lat) for lon, lat in poly]
-              for poly in CONTINENTS_LONLAT]
+_MAP_CACHE = None
+
+
+def map_image():
+    """The recolored real world map for the box, cached; 290x166."""
+    global _MAP_CACHE
+    if _MAP_CACHE is None:
+        _MAP_CACHE = Image.open(os.path.join(ASSETS, "world-map.png"))
+        _MAP_CACHE = _MAP_CACHE.convert("RGB")
+        if _MAP_CACHE.size != (MAP_W, MAP_H):
+            raise SystemExit("world-map.png is %s, the box is %s"
+                             % (_MAP_CACHE.size, (MAP_W, MAP_H)))
+    return _MAP_CACHE
 
 # Story number -> true (lon, lat) of the place it happened. Pins are
 # projected with the same function as the coastlines, so each pin sits
@@ -531,40 +469,40 @@ def render(out_path):
                   fill=GREY)
     rule(draw, 466, 1)
 
-    # Ten grid stories: five columns, two rows.
+    # Ten grid stories: five columns, two rows. Thumbnails are 58 px
+    # tall (v6), up from 52, so the photos read; the rows are 148 px
+    # apart and the grid starts at y=472, so the taller cards still
+    # clear the rule below them.
     card_w = 187
     card_gap = (CW - 5 * card_w) // 4
     for row in range(2):
-        top = 474 + row * 144
+        top = 472 + row * 148
         for col in range(5):
             story = stories.GRID[row * 5 + col]
             x = MARGIN + col * (card_w + card_gap)
-            ART[story["art"]](draw, x, top, card_w, 52)
-            draw.rectangle([x, top, x + card_w, top + 52], outline=INK,
+            ART[story["art"]](draw, x, top, card_w, 58)
+            draw.rectangle([x, top, x + card_w, top + 58], outline=INK,
                            width=1)
-            draw.text((x, top + 56), "%d \u00b7 %s" % (story["num"],
+            draw.text((x, top + 62), "%d \u00b7 %s" % (story["num"],
                       story["kicker"]), font=font("sans_bold", 10), fill=RED)
             hf, hl = fit_lines(draw, story["headline"], "serif_bold", 15,
                                card_w, 2, min_size=13)
-            draw_lines(draw, x, top + 68, hl, hf, INK, 16)
+            draw_lines(draw, x, top + 74, hl, hf, INK, 16)
             bf, bl = fit_lines(draw, story["body"], "serif", 11, card_w, 2,
                                min_size=10)
-            draw_lines(draw, x, top + 102, bl, bf, INK, 12)
-            draw.text((x, top + 129), story["source"],
+            draw_lines(draw, x, top + 108, bl, bf, INK, 12)
+            draw.text((x, top + 135), story["source"],
                       font=font("serif_italic", 9), fill=GREY)
-    rule(draw, 760, 1)
+    rule(draw, 768, 1)
 
     # Map + briefs.
-    draw.text((MARGIN, 768), "WHERE IT HAPPENED",
+    draw.text((MARGIN, 770), "WHERE IT HAPPENED",
               font=font("sans_bold", 12), fill=RED)
-    draw.text((MARGIN + 302, 768), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
+    draw.text((MARGIN + 302, 770), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
               font=font("sans_bold", 12), fill=RED)
-    mx, my, mw, mh = MARGIN, 784, MAP_W, MAP_H
-    draw.rectangle([mx, my, mx + mw, my + mh], fill=OCEAN, outline=INK,
-                   width=1)
-    for poly in CONTINENTS:
-        draw.polygon([(mx + px, my + py) for px, py in poly], fill=LAND,
-                     outline=GREY)
+    mx, my, mw, mh = MARGIN, 786, MAP_W, MAP_H
+    _PAGE.paste(map_image(), (mx, my))
+    draw.rectangle([mx, my, mx + mw, my + mh], outline=INK, width=1)
     for num, (px, py) in PINS.items():
         draw.ellipse([mx + px - 6, my + py - 6, mx + px + 6, my + py + 6],
                      fill=RED, outline=(255, 255, 255))
@@ -577,7 +515,7 @@ def render(out_path):
     for col in range(2):
         bx = MARGIN + 302 + col * (brief_w + 10)
         chunk = stories.BRIEFS[col * 13:(col + 1) * 13]
-        by = 784
+        by = 786
         for num, text, source in chunk:
             nf = font("sans_bold", 11)
             draw.text((bx, by), num, font=nf, fill=RED)
