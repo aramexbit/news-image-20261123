@@ -319,7 +319,11 @@ BRIEFS = [
      "Reuters"),
     ("41", "UN chief 'deeply disappointed' by COP31",
      "Reuters"),
-    ("42", "Hormuz: 5 ships Sat, none on Sunday",
+    # v12: "none on Sunday" contradicted lead 1 ("two more hit mines
+    # on Sunday"); the lead stands on the morning research (AP +
+    # Reuters + Al Jazeera), so the brief drops the Sunday claim and
+    # keeps the count: "5 ships hit over the weekend" (Reuters).
+    ("42", "Hormuz: 5 ships hit over the weekend",
      "Reuters"),
     ("43", "Kyiv needs \u20ac70bn aid to end of 2027",
      "Reuters"),

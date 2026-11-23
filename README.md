@@ -58,7 +58,14 @@ Mercury's thumbnail focus was moved onto the lit planet, so every
 grid thumbnail reads at its small size. To make room for the wider
 map, v11 also shrank the numbers-strip figures to 18 pt, the lead
 photos to 74 px and the grid photos to 62 px, and the HOW TO READ
-header now shares its first line with the text.
+header now shares its first line with the text. v12 fixes one
+internal contradiction the v11 blind test found: brief #42 no
+longer claims "none on Sunday", which contradicted lead 1 ("two
+more hit mines on Sunday"); it now reads "Hormuz: 5 ships hit over
+the weekend" (Reuters), keeping the count of five ships. The lead
+itself is unchanged: it rests on the morning research from three
+sources (AP, Reuters, Al Jazeera), while the brief's "none on
+Sunday" came from a single afternoon source.
 
 ## How it runs
 
