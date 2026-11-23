@@ -29,6 +29,12 @@
 # briefs 32, HOW TO READ says ten picture stories.
 # v10 (lanjut): pin 10 di Chicago (CME, tempat futures AS
 # diperdagangkan), bukan New York — supaya tidak menumpuk pin 5.
+# v11: peta diperbesar 320x127 -> 432x172 (pin 16 px, angka 11 pt,
+# HOW TO READ header inline) supaya tulisannya rapi; angka strip
+# 18 pt, foto lead 74 px, foto grid 62 px; briefs pindah ke kolom
+# 261 px (terpanjang 241,5 px vs 243,6 px tersedia, terukur).
+# Aset peta di-upscale dari 320x127 dengan LANCZOS karena sumber
+# NASA 3600x1800 sudah hilang saat /tmp di-wipe.
 out/
 __pycache__/
 *.pyc

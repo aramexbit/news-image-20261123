@@ -42,6 +42,12 @@ Verification notes, 23 Nov 2026 (web research, morning):
   row 2 (Poland was promoted to lead 4 in v9, leaving 5+4);
   briefs #41-#46 renumber to #40-#45, HOW TO READ says ten
   picture stories and 32 briefs; totals stay 46.
+- v11 (23 Nov, user: "di perbesar saja petanya agar tulisannya
+  rapih"): the map box grows 320x127 -> 432x172, pins 16 px with
+  11 pt numbers, HOW TO READ header inline on the first line;
+  numbers strip 18 pt, lead photos 74 px, grid photos 62 px, so
+  the taller map fits; briefs move to 261 px columns (longest
+  241.5 px vs 243.6 px available, measured) with no trimming.
 """
 
 MASTHEAD = "THE WORLD HERALD"
@@ -86,7 +92,9 @@ NUMBERS = [
     ("$92.3", "Brent, $/bbl"),
 ]
 
-# HOW TO READ box, next to the map: what the judge sees at a glance.
+# HOW TO READ box, under the map: what the judge sees at a glance.
+# v11: the red bold header shares the first line with the text, so
+# the box is two lines tall in the 432 px map column.
 HOW_TO_READ = ("At thumbnail size: the date, four leads and ten big "
                "picture stories. At full size: 32 briefs by region. "
                "Numbered pins are the picture stories.")

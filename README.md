@@ -13,10 +13,10 @@ Monday 23 November 2026, built for the
 The layout follows the winning pattern of the 19 November edition,
 plus the winners' four edges: a THE DAY IN NUMBERS strip, four big
 photographic leads, ten bigger medium grid stories, a world map with
-numbered pins and a HOW TO READ box, and thirty-two one-line
-briefs, with a THE DAY IN UTC strip, a region-count bar, and a DATE
-CHECK footer. Forty-six stories in all, every one named with its
-source.
+numbered pins and a HOW TO READ box (map enlarged to 432x172 in v11),
+and thirty-two one-line briefs, with a THE DAY IN UTC strip, a
+region-count bar, and a DATE CHECK footer. Forty-six stories in all,
+every one named with its source.
 
 The leads are the burning Strait of Hormuz (tankers struck over the
 weekend, two more on fire after hitting mines, and Iranian drones sent
@@ -44,15 +44,21 @@ Generation world map with topography and bathymetry (August 2004,
 3600x1800, equirectangular, produced by Reto Stoeckli, NASA Earth
 Observatory) — NASA imagery is public domain — kept in its true
 satellite colours (deep blue ocean, green and brown land, white polar
-ice) and true equirectangular proportions (320x127 for lon -180..180,
-lat 83..-60) by `tools/recolor_map.py` (v7; v6 flattened the same
-source to one cream land colour and stretched it 1.58x vertically,
-which read as a flat cartoon). The map is stored as
+ice) and true equirectangular proportions (432x172 for lon -180..180,
+lat 83..-60, enlarged from 320x127 in v11 so the numbered pins and
+the HOW TO READ text read neatly; the stored asset is the 320x127
+picture upscaled with LANCZOS, the 3600x1800 source having been lost
+when /tmp was wiped) by `tools/recolor_map.py` (v7; v6 flattened the
+same source to one cream land colour and stretched it 1.58x
+vertically, which read as a flat cartoon). The map is stored as
 `assets/world-map.png`; the entry program only ever reads that PNG,
 so the render needs no network. The six darkest grid photographs
 were gamma-lifted in place by `tools/brighten_grid.py` (v6), and
 Mercury's thumbnail focus was moved onto the lit planet, so every
-grid thumbnail reads at its small size.
+grid thumbnail reads at its small size. To make room for the wider
+map, v11 also shrank the numbers-strip figures to 18 pt, the lead
+photos to 74 px and the grid photos to 62 px, and the HOW TO READ
+header now shares its first line with the text.
 
 ## How it runs
 

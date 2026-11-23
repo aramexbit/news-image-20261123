@@ -25,10 +25,12 @@ Method (no data file is read in: the picture itself is the map):
     1. Crop the latitude window lat 83..-60 — the same window the
        front-page pins use — so the picture and the pins share one
        equirectangular projection.
-    2. Resize to the 320x127 map box with LANCZOS. 360 degrees of
+    2. Resize to the 432x172 map box with LANCZOS. 360 degrees of
        longitude over 143 degrees of latitude is an aspect of 2.52,
-       and 320/127 is 2.52, so the continents keep their true
+       and 432/172 is 2.51, so the continents keep their true
        proportions instead of the 1.58x vertical stretch of v6.
+       (v11 widened the v7 box from 320x127; the stored asset was
+       upscaled from that picture because the source was lost.)
     3. Light touches only, so it sits on newsprint without shouting:
        desaturate to 0.88, contrast 1.06, then blend 10% toward the
        paper colour. Land is never flattened to one colour.
@@ -42,11 +44,16 @@ import sys
 
 from PIL import Image, ImageEnhance
 
-# Map box on the front page: lon -180..180, lat 83..-60, 320x127 px.
-# True equirectangular aspect: 360/143 = 2.52; box aspect 320/127 =
-# 2.52. v6 used 290x166 for 360x130 degrees (aspect 1.75 against a
-# true 2.77), which stretched every continent 1.58x vertically.
-MAP_W, MAP_H = 320, 127
+# Map box on the front page: lon -180..180, lat 83..-60, 432x172 px.
+# True equirectangular aspect: 360/143 = 2.52; box aspect 432/172 =
+# 2.51. v6 used 290x166 for 360x130 degrees (aspect 1.75 against a
+# true 2.77), which stretched every continent 1.58x vertically. v11
+# widens the v7 box (320x127) to 432x172 so the pins and the HOW TO
+# READ text read neatly; the stored asset was upscaled from the
+# 320x127 picture with LANCZOS because the 3600x1800 source was lost
+# when /tmp was wiped — re-running this tool with a fresh source
+# rebuilds the asset at the same 432x172 box.
+MAP_W, MAP_H = 432, 172
 LAT_N, LAT_S = 83, -60
 
 PAPER = (248, 242, 227)
