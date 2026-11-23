@@ -24,6 +24,11 @@
 # ESCALATION") overflowed the 238 px column into lead 2's kicker,
 # so it is shortened to "STRAIT OF HORMUZ"; the lead/grid source
 # lines are no longer struck through by rules.
+# v10: brief #40 (US futures, Barron's) promoted to grid card #10
+# to fill the empty fifth cell of grid row 2; grid is 5+5 again,
+# briefs 32, HOW TO READ says ten picture stories.
+# v10 (lanjut): pin 10 di Chicago (CME, tempat futures AS
+# diperdagangkan), bukan New York — supaya tidak menumpuk pin 5.
 out/
 __pycache__/
 *.pyc

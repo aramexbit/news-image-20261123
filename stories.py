@@ -1,7 +1,7 @@
 """The forty-six stories of Monday, 23 November 2026.
 
 The page follows the winning pattern of the 19 November edition: four
-big illustrated leads, nine medium grid stories, thirty-three one-line
+big illustrated leads, ten medium grid stories, thirty-two one-line
 briefs, a UTC strip, a region-count bar, a THE DAY IN NUMBERS strip,
 a world map with a HOW TO READ box and a DATE CHECK footer. Every
 story carries the source it traces to. Summaries restate the source
@@ -36,6 +36,12 @@ Verification notes, 23 Nov 2026 (web research, morning):
 - v9 numbers strip: 3 tankers struck, 11 missing, 24 killed,
   128 states, 538 AQI, $92.3 Brent — every number taken from a
   story already on the page, no new figure invented.
+- v10 (23 Nov, user: "ada bagian yang kosong"): brief #40 "US
+  futures rebound ~2% after rout" (Barron's, verified in v9) is
+  promoted to grid card #10 to fill the empty fifth cell of grid
+  row 2 (Poland was promoted to lead 4 in v9, leaving 5+4);
+  briefs #41-#46 renumber to #40-#45, HOW TO READ says ten
+  picture stories and 32 briefs; totals stay 46.
 """
 
 MASTHEAD = "THE WORLD HERALD"
@@ -81,8 +87,8 @@ NUMBERS = [
 ]
 
 # HOW TO READ box, next to the map: what the judge sees at a glance.
-HOW_TO_READ = ("At thumbnail size: the date, four leads and nine big "
-               "picture stories. At full size: 33 briefs by region. "
+HOW_TO_READ = ("At thumbnail size: the date, four leads and ten big "
+               "picture stories. At full size: 32 briefs by region. "
                "Numbered pins are the picture stories.")
 
 LEADS = [
@@ -185,7 +191,19 @@ GRID = [
         "art": "school",
     },
     {
+        # v10: promoted from brief #40 (Barron's, verified in v9) to
+        # fill the empty fifth cell of grid row 2.
         "num": 10,
+        "kicker": "US \u2014 FUTURES",
+        "headline": "US futures rebound after rout",
+        "body": (
+            "US futures rose ~2% on Monday after Friday's rout."
+        ),
+        "source": "Barron's",
+        "art": "rebound",
+    },
+    {
+        "num": 11,
         "kicker": "GENEVA \u2014 128 STATES",
         "headline": "128 states back killer-robot rules",
         "body": (
@@ -195,7 +213,7 @@ GRID = [
         "art": "globe",
     },
     {
-        "num": 11,
+        "num": 12,
         "kicker": "FOOTBALL \u2014 2035",
         "headline": "UK to host 2035 Women's World Cup",
         "body": (
@@ -205,7 +223,7 @@ GRID = [
         "art": "trophy",
     },
     {
-        "num": 12,
+        "num": 13,
         "kicker": "SPACE \u2014 MERCURY",
         "headline": "BepiColombo enters Mercury orbit",
         "body": (
@@ -215,7 +233,7 @@ GRID = [
         "art": "mercury",
     },
     {
-        "num": 13,
+        "num": 14,
         "kicker": "POLLUTION \u2014 LAHORE",
         "headline": "Lahore world's most polluted",
         "body": (
@@ -285,22 +303,21 @@ BRIEFS = [
     # v9: eight more briefs from the afternoon of 23 Nov, all
     # verified by web research (Reuters / Barron's / Tasnim);
     # contested items (Kharg tanker convoy, Kyiv-region toll of 12)
-    # were dropped rather than printed.
+    # were dropped rather than printed. v10: #40 (US futures) was
+    # promoted to grid card #10, so seven stay here, renumbered.
     ("39", "NATO meets Monday on Poland breach",
      "Reuters"),
-    ("40", "US futures rebound ~2% after rout",
-     "Barron's"),
-    ("41", "Zelenskyy vows retaliation for Kyiv strikes",
+    ("40", "Zelenskyy vows retaliation for Kyiv strikes",
      "Reuters"),
-    ("42", "UN chief 'deeply disappointed' by COP31",
+    ("41", "UN chief 'deeply disappointed' by COP31",
      "Reuters"),
-    ("43", "Hormuz: 5 ships Sat, none on Sunday",
+    ("42", "Hormuz: 5 ships Sat, none on Sunday",
      "Reuters"),
-    ("44", "Kyiv needs \u20ac70bn aid to end of 2027",
+    ("43", "Kyiv needs \u20ac70bn aid to end of 2027",
      "Reuters"),
-    ("45", "US intel chief: Putin 'no friend' in Ukraine",
+    ("44", "US intel chief: Putin 'no friend' in Ukraine",
      "Reuters"),
-    ("46", "Iran: 2 tankers hit mines off Ghannam",
+    ("45", "Iran: 2 tankers hit mines off Ghannam",
      "Tasnim"),
 ]
 
@@ -315,8 +332,8 @@ DATE_CHECK_NOT_YET = "COP31 follow-up talks \u00b7 Akvan landfall aftermath"
 def validate():
     """Every story on the page must name the source it traces to."""
     assert len(LEADS) == 4, "the page carries exactly four leads"
-    assert len(GRID) == 9, "the page carries exactly nine grid stories"
-    assert len(BRIEFS) == 33, "the page carries exactly thirty-three briefs"
+    assert len(GRID) == 10, "the page carries exactly ten grid stories"
+    assert len(BRIEFS) == 32, "the page carries exactly thirty-two briefs"
     total = len(LEADS) + len(GRID) + len(BRIEFS)
     assert total == 46, "the page carries exactly forty-six stories"
     assert sum(count for _, count in REGIONS) == 46, (

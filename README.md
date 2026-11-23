@@ -12,8 +12,8 @@ Monday 23 November 2026, built for the
 
 The layout follows the winning pattern of the 19 November edition,
 plus the winners' four edges: a THE DAY IN NUMBERS strip, four big
-photographic leads, nine bigger medium grid stories, a world map with
-numbered pins and a HOW TO READ box, and thirty-three one-line
+photographic leads, ten bigger medium grid stories, a world map with
+numbered pins and a HOW TO READ box, and thirty-two one-line
 briefs, with a THE DAY IN UTC strip, a region-count bar, and a DATE
 CHECK footer. Forty-six stories in all, every one named with its
 source.
@@ -24,20 +24,22 @@ at US bases), the COP31 climate talks collapsing in Antalya over
 fossil fuels, a Russian drone hitting an apartment block in Dymer
 with eleven people missing, and Poland confirming the fallen objects
 were Russian missiles, with NATO meeting on Monday. The grid carries
-the Friday market plunge, sea drones hitting a Russian warship off
+the Friday market plunge, US futures rebounding after Friday's rout
+(a flat drawn chart, v10), sea drones hitting a Russian warship off
 Libya, the capture of cartel boss Chapo Isidro, the Cikande factory
 fire, South Korea's education minister quitting, 128 states backing
 killer-robot rules, the UK hosting the 2035 Women's World Cup,
 BepiColombo entering Mercury orbit, and Lahore's air at AQI 538.
-Thirty-three one-line briefs below the map cover the rest of the
-day, from Manipur to the Baltic, including eight from the afternoon:
-NATO meeting on Poland, US futures rebounding, Zelenskyy vowing
+Thirty-two one-line briefs below the map cover the rest of the
+day, from Manipur to the Baltic, including seven from the afternoon:
+NATO meeting on Poland, Zelenskyy vowing
 retaliation, the UN chief on COP31, Hormuz shipping counts, Kyiv's
 EUR 70bn aid need, the US intelligence chief on Putin, and two
 tankers hitting mines off Ghannam.
 
-All thirteen pictures on the page are generated press photographs; the
-world map is a real one. Its source is the NASA Blue Marble Next
+All thirteen pictures on the page are generated press photographs,
+and the tenth grid card is a flat programmatic rebound chart (v10);
+the world map is a real one. Its source is the NASA Blue Marble Next
 Generation world map with topography and bathymetry (August 2004,
 3600x1800, equirectangular, produced by Reto Stoeckli, NASA Earth
 Observatory) — NASA imagery is public domain — kept in its true
@@ -89,7 +91,7 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
   grid, map (real NASA world map + numbered pins), briefs,
   DATE CHECK
 - `stories.py` — the forty-six stories of 23 November 2026, each with
-  its source (v9: four leads, nine grid, thirty-three briefs; the
+  its source (v10: four leads, ten grid, thirty-two briefs; the
   numbers strip figures are all taken from stories on the page)
 - `assets/` — the prebuilt `entry.png`, the recolored world map
   (`world-map.png`) plus the thirteen press photographs

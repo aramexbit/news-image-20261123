@@ -2,8 +2,8 @@
 
 Follows the winning pattern of the 19 November edition, plus the
 winners' four edges: a THE DAY IN NUMBERS strip under the region
-bar, four big leads with press photographs, nine bigger grid cards,
-a world map with a HOW TO READ box, thirty-three one-line briefs,
+bar, four big leads with press photographs, ten bigger grid cards,
+a world map with a HOW TO READ box, thirty-two one-line briefs,
 and a DATE CHECK footer. The map is a real equirectangular world
 map (NASA Blue Marble, public domain) kept in its true satellite
 colours and true proportions by tools/recolor_map.py (v7), so it
@@ -14,7 +14,8 @@ every lead body ends on a full stop inside its 3-line box.
 
 Forty-six stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
-photographs, cropped into their boxes; the world map is the recolored
+photographs, cropped into their boxes; the tenth grid card is a flat
+programmatic rebound chart (v10, drawn, not photographed); the world
 NASA image in assets/. No network, no clock, no randomness except a
 fixed-seed
 grain, so two runs write identical bytes.
@@ -292,6 +293,25 @@ def art_smog(draw, x, y, w, h):
     photo("smog", x, y, w, h)
 
 
+def art_rebound(draw, x, y, w, h):
+    """A flat rebound chart (v10), drawn like the 19 Nov winner's:
+    dark navy panel, a green line that dips (Friday's rout) then
+    climbs to the top-right corner (Monday's rebound), with a
+    "~2%" label. No photo: the card is a market chart, not a scene."""
+    draw.rectangle([x, y, x + w, y + h], fill=(18, 38, 66))
+    for gy in (y + h // 3, y + 2 * h // 3):
+        draw.line([x + 4, gy, x + w - 4, gy], fill=(70, 100, 140), width=1)
+    pts = [
+        (x + 4, y + 40), (x + 30, y + 46), (x + 55, y + 52),
+        (x + 80, y + 50), (x + 105, y + 38), (x + 130, y + 26),
+        (x + 155, y + 16), (x + w - 5, y + 10),
+    ]
+    draw.line(pts, fill=(40, 160, 100), width=5, joint="curve")
+    draw.line(pts, fill=(64, 200, 130), width=3, joint="curve")
+    draw.text((x + 8, y + 5), "~2%", font=font("sans_bold", 15),
+              fill=(100, 230, 160))
+
+
 ART = {
     "tanker": art_tanker,
     "cop": art_cop,
@@ -306,6 +326,7 @@ ART = {
     "trophy": art_trophy,
     "mercury": art_mercury,
     "smog": art_smog,
+    "rebound": art_rebound,
 }
 
 # World map, in a 320 x 127 box: lon -180..180, lat 83..-60,
@@ -345,24 +366,29 @@ def map_image():
 
 # Story number -> true (lon, lat) of the place it happened. Pins are
 # projected with the same function as the coastlines, so each pin sits
-# on the right spot of the map.
+# on the right spot of the map. v10: Geneva 10->11, UK 11->12, Lahore
+# 13->14 (the grid renumbering); 10 is Chicago, where US futures
+# trade (CME), a real spot distinct from New York's pin 5; Mercury
+# (13) has no pin, as before — it is in space.
 PINS_LATLON = {
     1: (56.0, 26.5), 2: (30.7, 36.9), 3: (30.5, 50.4), 4: (19.0, 52.0),
     5: (-74.0, 40.7), 6: (20.0, 32.1), 7: (-107.4, 25.6),
-    8: (106.1, -6.1), 9: (127.0, 37.5), 10: (6.1, 46.2),
-    11: (-0.1, 54.0), 13: (74.3, 31.5),
+    8: (106.1, -6.1), 9: (127.0, 37.5), 10: (-87.6, 41.9),
+    11: (6.1, 46.2), 12: (-0.1, 54.0), 14: (74.3, 31.5),
 }
 # Tiny spreads (a few pixels, in box coordinates) so no two pin
 # circles in crowded Europe sit on top of each other; each nudge
 # stays on the same country as the true position. Recomputed for
 # the v7 box (320x127, lat 83..-60), where one pixel is 1.13 degrees:
 # a 3 px south nudge would push Geneva into the Mediterranean, so
-# 10 sits on its true position; 11 goes up-left onto Scotland, 4
+# 11 sits on its true position; 12 goes up-left onto Scotland, 4
 # up onto northern Poland, 3 right into eastern Ukraine, and 6
 # down-left along the Libyan coast, away from Antalya. Pin 2 stays
 # on Antalya itself: the city is on the coast, so its centre pixel
-# reads as sea while the circle straddles the shoreline.
-PIN_NUDGE = {3: (3, 0), 4: (0, -2), 6: (-3, 2), 11: (-4, -2)}
+# reads as sea while the circle straddles the shoreline. v10: pin 10
+# (Chicago) is nudged 2 px left so its circle clears pin 5 (New York):
+# the two centres are 14 px apart, the circles 12 px wide.
+PIN_NUDGE = {3: (3, 0), 4: (0, -2), 6: (-3, 2), 10: (-2, 0), 12: (-4, -2)}
 PINS = {}
 for _num, (_lon, _lat) in PINS_LATLON.items():
     _px, _py = lonlat_to_xy(_lon, _lat)
@@ -500,10 +526,11 @@ def render(out_path):
     # striking through it, and the bordered grid photos separate the
     # sections on their own.
 
-    # Nine grid stories (v9: Poland was promoted to lead 4): five
-    # columns, two rows, the second row holding four. Photos are 66 px
-    # tall (v9), up from 58, so the cards read at a glance like the
-    # winners'; rows are 150 px apart and the grid starts at y=474.
+    # Ten grid stories (v10: brief #40 was promoted to grid #10, so
+    # the second row holds five again and no cell is empty): five
+    # columns, two rows. Photos are 66 px tall (v9), up from 58, so
+    # the cards read at a glance like the winners'; rows are 150 px
+    # apart and the grid starts at y=474.
     card_w = 187
     card_gap = (CW - 5 * card_w) // 4
     for row in range(2):
@@ -531,8 +558,8 @@ def render(out_path):
     # y=762 (9 pt, to y=771) left no room for a rule at 768 without
     # striking through them; the red section headers separate it.
 
-    # Map + briefs. v9: thirty-three briefs in two columns of 17 and
-    # 16 at 10 pt (the winners' density), starting at y=790; the map
+    # Map + briefs. v10: thirty-two briefs in two columns of 17 and
+    # 15 at 10 pt (the winners' density), starting at y=790; the map
     # box is unchanged (320x127, true aspect). Under the map, a HOW TO
     # READ box (like the 19 Nov runner-up) tells the judge the layout
     # at a glance; the map credit now lives in the footline.
