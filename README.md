@@ -11,7 +11,7 @@ Monday 23 November 2026, built for the
 [make.fun news-image-20261123 competition](https://make.fun/c/news-image-20261123).
 
 The layout follows the winning pattern of the 19 November edition:
-three big illustrated leads, ten medium grid stories, twenty-five
+three big photographic leads, ten medium grid stories, twenty-five
 one-line briefs, a THE DAY IN UTC strip, a region-count bar, a world
 map with numbered pins, and a DATE CHECK footer. Thirty-eight stories
 in all, every one named with its source.
@@ -30,7 +30,8 @@ Mercury orbit, and Lahore's air at AQI 538. Twenty-five one-line
 briefs below the map cover the rest of the day, from Manipur to the
 Baltic.
 
-All illustrations on the page are drawn flat with PIL — no photographs.
+All thirteen pictures on the page are generated press photographs;
+the world map stays a drawn diagram.
 
 ## How it runs
 
@@ -69,4 +70,5 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
   grid, map, briefs, DATE CHECK
 - `stories.py` — the thirty-eight stories of 23 November 2026, each with
   its source
-- `assets/` — the prebuilt `entry.png` (flat drawings only, no photos)
+- `assets/` — the prebuilt `entry.png` plus the thirteen press
+  photographs (`photo-*.webp`) and their provenance in `photos.json`

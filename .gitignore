@@ -1,7 +1,7 @@
 # Build outputs of the local render; the grader writes to /output.
-# v2: no generated photographs in the repo — all art is drawn flat by
-# composer.py, so assets/ carries only the prebuilt entry.png. The v1
-# webp photographs were removed with git rm in the v2 patch.
+# v3: thirteen generated press photographs live in assets/ (photo-*.webp
+# plus photos.json with their prompts); the flat PIL drawings of v2 are
+# gone. assets/entry.png is the prebuilt v3 page for the fallback path.
 out/
 __pycache__/
 *.pyc

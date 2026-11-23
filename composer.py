@@ -1,13 +1,14 @@
-"""Render THE WORLD HERALD v2, the one-page front page for 23 Nov 2026.
+"""Render THE WORLD HERALD v3, the one-page front page for 23 Nov 2026.
 
 Follows the winning pattern of the 19 November edition: masthead with a
 big date, a THE DAY IN UTC strip, a region-count bar, three big leads
-with flat drawn illustrations, ten medium grid stories, a world map with
+with press photographs, ten medium grid stories, a world map with
 numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
 
 Thirty-eight stories in all, every one named with its source, from the
-stories in stories.py. All illustrations are drawn flat with PIL — no
-photographs. No network, no clock, no randomness except a fixed-seed
+stories in stories.py. All thirteen pictures are generated press
+photographs, cropped into their boxes; the world map stays a drawn
+diagram. No network, no clock, no randomness except a fixed-seed
 grain, so two runs write identical bytes.
 
 The page is saved as PNG; when the PNG would pass the 1 MiB gate it is
@@ -154,301 +155,133 @@ def rule(draw, y, weight=1, x0=None, x1=None):
 
 
 # ---------------------------------------------------------------------------
-# Flat illustrations, drawn with PIL. Each takes (draw, x, y, w, h).
+# Press photographs. Each art function takes (draw, x, y, w, h) and pastes
+# a generated photojournalistic photo into the box, cropped to the box
+# aspect around a focus point. No text inside any photo; the layout
+# carries every headline and caption.
 # ---------------------------------------------------------------------------
 
-def _flames(draw, cx, base, scale=1.0):
-    """Three flat flame tongues above (cx, base)."""
-    s = scale
-    for dx, fh, col in ((-16, 34, (230, 110, 30)), (0, 46, (240, 170, 40)),
-                        (16, 30, (230, 110, 30))):
-        x0 = cx + dx * s
-        draw.polygon([(x0 - 10 * s, base), (x0, base - fh * s),
-                      (x0 + 10 * s, base)], fill=col)
+PHOTO_FILES = {
+    "tanker": "photo-hero-hormuz.webp",
+    "cop": "photo-hero-cop31.webp",
+    "block": "photo-hero-dymer.webp",
+    "missile": "photo-grid-poland.webp",
+    "chart": "photo-grid-markets.webp",
+    "ship": "photo-grid-libya.webp",
+    "badge": "photo-grid-mexico.webp",
+    "factory": "photo-grid-cikande.webp",
+    "school": "photo-grid-korea.webp",
+    "globe": "photo-grid-geneva.webp",
+    "trophy": "photo-grid-stadium.webp",
+    "mercury": "photo-grid-mercury.webp",
+    "smog": "photo-grid-lahore.webp",
+}
+
+# Focus point (fx, fy) of each photo, 0..1: where the crop is centred.
+PHOTO_FOCUS = {
+    "tanker": (0.5, 0.68),
+    "cop": (0.5, 0.62),
+    "block": (0.5, 0.5),
+    "missile": (0.5, 0.5),
+    "chart": (0.5, 0.4),
+    "ship": (0.5, 0.5),
+    "badge": (0.5, 0.6),
+    "factory": (0.5, 0.5),
+    "school": (0.5, 0.5),
+    "globe": (0.5, 0.55),
+    "trophy": (0.5, 0.5),
+    "mercury": (0.4, 0.5),
+    "smog": (0.5, 0.5),
+}
+
+_PHOTO_CACHE = {}
+_PAGE = None  # the page image, set by render(); photo() pastes into it.
 
 
-def _smoke(draw, x, y, r, col=(120, 116, 106)):
-    """A small puff of smoke: three overlapping circles."""
-    draw.ellipse([x - r, y - r, x + r, y + r], fill=col)
-    draw.ellipse([x - r // 2, y - r - 4, x + r, y - r + 6], fill=col)
-    draw.ellipse([x + r // 2, y - r // 2, x + 2 * r, y + r // 2], fill=col)
+def photo(name, x, y, w, h):
+    """Paste the photo for `name` into the (x, y, w, h) box, cropped."""
+    key = (name, w, h)
+    if key not in _PHOTO_CACHE:
+        src = Image.open(os.path.join(ASSETS, PHOTO_FILES[name]))
+        src = src.convert("RGB")
+        sw, sh = src.size
+        fx, fy = PHOTO_FOCUS[name]
+        target = w / h
+        if sw / sh > target:
+            cw = int(sh * target)
+            cx = min(max(int((sw - cw) * fx), 0), sw - cw)
+            box = (cx, 0, cx + cw, sh)
+        else:
+            ch = int(sw / target)
+            cy = min(max(int((sh - ch) * fy), 0), sh - ch)
+            box = (0, cy, sw, cy + ch)
+        _PHOTO_CACHE[key] = src.crop(box).resize((w, h), Image.LANCZOS)
+    _PAGE.paste(_PHOTO_CACHE[key], (x, y))
 
 
 def art_tanker(draw, x, y, w, h):
-    """A burning tanker in the strait, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    draw.rectangle([x, y + h * 0.62, x + w, y + h], fill=SEA)
-    draw.line([x, y + h * 0.62, x + w, y + h * 0.62], fill=(120, 150, 175))
-    # Distant tanker, already burning.
-    draw.rectangle([x + w * 0.68, y + h * 0.42, x + w * 0.92, y + h * 0.62],
-                   fill=(40, 40, 44))
-    _flames(draw, x + w * 0.80, y + h * 0.44, scale=0.55)
-    _smoke(draw, x + w * 0.80, y + h * 0.26, 9)
-    # Main tanker.
-    draw.rectangle([x + w * 0.08, y + h * 0.50, x + w * 0.62, y + h * 0.78],
-                   fill=(28, 28, 32))
-    draw.rectangle([x + w * 0.08, y + h * 0.50, x + w * 0.62, y + h * 0.56],
-                   fill=(163, 30, 30))
-    draw.rectangle([x + w * 0.50, y + h * 0.34, x + w * 0.60, y + h * 0.50],
-                   fill=(60, 60, 66))
-    _flames(draw, x + w * 0.30, y + h * 0.52, scale=0.9)
-    _flames(draw, x + w * 0.46, y + h * 0.52, scale=0.7)
-    _smoke(draw, x + w * 0.30, y + h * 0.24, 12)
-    _smoke(draw, x + w * 0.48, y + h * 0.30, 9)
-    # A naval mine, floating.
-    draw.ellipse([x + w * 0.86, y + h * 0.80, x + w * 0.92, y + h * 0.88],
-                 fill=(20, 20, 22))
-    draw.line([x + w * 0.89, y + h * 0.78, x + w * 0.89, y + h * 0.72],
-              fill=(20, 20, 22), width=2)
+    """A burning tanker in the strait, photographed at dusk."""
+    photo("tanker", x, y, w, h)
 
 
 def art_cop(draw, x, y, w, h):
-    """A conference hall with fossil fuels crossed out, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    draw.rectangle([x + w * 0.10, y + h * 0.42, x + w * 0.90, y + h],
-                   fill=(96, 110, 128))
-    draw.polygon([(x + w * 0.10, y + h * 0.42), (x + w * 0.50, y + h * 0.22),
-                  (x + w * 0.90, y + h * 0.42)], fill=(72, 86, 104))
-    for i in range(5):
-        cx = x + w * (0.18 + i * 0.16)
-        draw.rectangle([cx, y + h * 0.58, cx + w * 0.07, y + h * 0.94],
-                       fill=(232, 226, 208))
-    # Flags of the deadlocked parties.
-    for i, col in enumerate(((163, 30, 30), (64, 96, 140), (196, 120, 40),
-                             (90, 130, 90), (120, 120, 60))):
-        fx = x + w * (0.14 + i * 0.17)
-        draw.line([fx, y + h * 0.30, fx, y + h * 0.46], fill=INK, width=2)
-        draw.rectangle([fx, y + h * 0.30, fx + 14, y + h * 0.40], fill=col)
-    label = "FOSSIL FUELS"
-    fnt = font("sans_bold", 15)
-    tw = draw.textlength(label, font=fnt)
-    lx, ly = x + (w - tw) / 2, y + h * 0.10
-    draw.text((lx, ly), label, font=fnt, fill=RED)
-    draw.line([lx - 4, ly + 8, lx + tw + 4, ly + 8], fill=RED, width=3)
+    """A climate conference plenary hall, photographed."""
+    photo("cop", x, y, w, h)
 
 
 def art_block(draw, x, y, w, h):
-    """A damaged apartment block under a smoke plume, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    # The block, top corner torn away by the strike.
-    draw.polygon([(x + w * 0.22, y + h * 0.98), (x + w * 0.22, y + h * 0.18),
-                  (x + w * 0.38, y + h * 0.18), (x + w * 0.44, y + h * 0.34),
-                  (x + w * 0.52, y + h * 0.26), (x + w * 0.60, y + h * 0.40),
-                  (x + w * 0.78, y + h * 0.24),
-                  (x + w * 0.78, y + h * 0.98)], fill=(120, 118, 110))
-    # Scorch marks around the torn corner.
-    draw.polygon([(x + w * 0.40, y + h * 0.20), (x + w * 0.46, y + h * 0.32),
-                  (x + w * 0.52, y + h * 0.28)], fill=(60, 58, 54))
-    for r in range(4):
-        for c in range(4):
-            wx = x + w * (0.28 + c * 0.12)
-            wy = y + h * (0.34 + r * 0.16)
-            if r == 0 and c < 2:
-                continue  # the torn corner has no windows
-            draw.rectangle([wx, wy, wx + 12, wy + 14], fill=(52, 52, 56))
-    _smoke(draw, x + w * 0.45, y + h * 0.14, 12)
-    _smoke(draw, x + w * 0.62, y + h * 0.10, 9)
-    # Rubble at the base.
-    for i, (dx, s) in enumerate(((0.30, 10), (0.44, 14), (0.62, 9))):
-        draw.polygon([(x + w * dx, y + h * 0.98),
-                      (x + w * dx + s, y + h * 0.98 - s * 0.7),
-                      (x + w * dx + 2 * s, y + h * 0.98)],
-                     fill=(90, 88, 82))
-    # A rescue ladder against the block.
-    draw.line([x + w * 0.84, y + h * 0.98, x + w * 0.80, y + h * 0.40],
-              fill=RED, width=3)
+    """A damaged apartment block, photographed with rescuers."""
+    photo("block", x, y, w, h)
 
 
 def art_missile(draw, x, y, w, h):
-    """A cruise missile over a field, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    draw.ellipse([x + w * 0.70, y + h * 0.08, x + w * 0.98, y + h * 0.32],
-                 fill=(240, 200, 90))
-    # Missile body, diagonal and thick enough to read at card size.
-    draw.polygon([(x + w * 0.14, y + h * 0.66), (x + w * 0.62, y + h * 0.28),
-                  (x + w * 0.72, y + h * 0.40), (x + w * 0.24, y + h * 0.78)],
-                 fill=(235, 233, 226))
-    draw.polygon([(x + w * 0.62, y + h * 0.28), (x + w * 0.76, y + h * 0.22),
-                  (x + w * 0.72, y + h * 0.40)], fill=(163, 30, 30))
-    draw.polygon([(x + w * 0.14, y + h * 0.66), (x + w * 0.08, y + h * 0.60),
-                  (x + w * 0.18, y + h * 0.58), (x + w * 0.24, y + h * 0.78)],
-                 fill=(120, 118, 112))
-    # Flame and smoke at the tail.
-    draw.polygon([(x + w * 0.14, y + h * 0.66), (x + w * 0.04, y + h * 0.72),
-                  (x + w * 0.10, y + h * 0.80)], fill=(240, 170, 40))
-    _smoke(draw, x + w * 0.06, y + h * 0.62, 5)
-    # Field below, with an impact burst.
-    draw.rectangle([x, y + h * 0.80, x + w, y + h], fill=(120, 130, 80))
-    draw.ellipse([x + w * 0.78, y + h * 0.78, x + w * 0.92, y + h * 0.94],
-                 fill=(90, 100, 60))
-    draw.polygon([(x + w * 0.85, y + h * 0.76), (x + w * 0.88, y + h * 0.66),
-                  (x + w * 0.91, y + h * 0.76)], fill=(230, 110, 30))
+    """A smoking impact crater in a Polish field, photographed."""
+    photo("missile", x, y, w, h)
 
 
 def art_chart(draw, x, y, w, h):
-    """The Friday plunge, in red, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=PANEL, outline=LIGHT_RULE)
-    for gy in (y + h // 3, y + 2 * h // 3):
-        draw.line([x + 3, gy, x + w - 3, gy], fill=(226, 220, 204))
-    pts = [(x + 6, y + 8), (x + 34, y + 14), (x + 62, y + 12),
-           (x + 90, y + 24), (x + 118, y + 22), (x + 146, y + 34),
-           (x + w - 6, y + h - 10)]
-    draw.line(pts, fill=RED, width=3, joint="curve")
-    for px, py in pts:
-        draw.ellipse([px - 2, py - 2, px + 2, py + 2], fill=RED)
-    draw.text((x + 6, y + 1), "S&P \u22123.7%", font=font("sans_bold", 10),
-              fill=RED)
-    draw.text((x + 6, y + h - 13), "Nasdaq \u22125.3%",
-              font=font("sans", 9), fill=GREY)
+    """A trading screen glowing red with the plunge, photographed."""
+    photo("chart", x, y, w, h)
 
 
 def art_ship(draw, x, y, w, h):
-    """A warship capsizing after a drone strike, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    draw.rectangle([x, y + h * 0.64, x + w, y + h], fill=SEA)
-    # The corvette, heeling over.
-    draw.polygon([(x + w * 0.12, y + h * 0.60), (x + w * 0.72, y + h * 0.44),
-                  (x + w * 0.80, y + h * 0.58), (x + w * 0.30, y + h * 0.72)],
-                 fill=(80, 84, 90))
-    draw.rectangle([x + w * 0.42, y + h * 0.34, x + w * 0.56, y + h * 0.48],
-                   fill=(60, 64, 70))
-    _flames(draw, x + w * 0.55, y + h * 0.46, scale=0.5)
-    _smoke(draw, x + w * 0.55, y + h * 0.28, 8)
-    # A sea drone, low over the water.
-    dx, dy = x + w * 0.82, y + h * 0.30
-    draw.ellipse([dx - 5, dy - 3, dx + 5, dy + 3], fill=(20, 20, 22))
-    draw.line([dx - 12, dy - 6, dx + 12, dy - 6], fill=(20, 20, 22), width=2)
-    draw.line([dx - 12, dy + 6, dx + 12, dy + 6], fill=(20, 20, 22), width=2)
+    """A warship listing in harbour, photographed."""
+    photo("ship", x, y, w, h)
 
 
 def art_badge(draw, x, y, w, h):
-    """A police badge on navy, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(36, 52, 78))
-    cx, cy = x + w / 2, y + h / 2
-    draw.polygon([(cx, cy - 18), (cx + 16, cy - 8), (cx + 12, cy + 12),
-                  (cx, cy + 20), (cx - 12, cy + 12), (cx - 16, cy - 8)],
-                 fill=(216, 170, 60), outline=(240, 200, 90))
-    draw.ellipse([cx - 5, cy - 7, cx + 5, cy + 3], fill=(36, 52, 78))
-    draw.text((x + 6, y + h - 12), "FBI MOST WANTED", font=font("sans_bold", 8),
-              fill=(240, 200, 90))
+    """A cartel arrest at dusk, photographed from behind."""
+    photo("badge", x, y, w, h)
 
 
 def art_factory(draw, x, y, w, h):
-    """A factory on fire, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=SKY)
-    draw.rectangle([x + w * 0.08, y + h * 0.48, x + w * 0.92, y + h],
-                   fill=(110, 108, 100))
-    draw.polygon([(x + w * 0.08, y + h * 0.48), (x + w * 0.25, y + h * 0.30),
-                  (x + w * 0.42, y + h * 0.48), (x + w * 0.59, y + h * 0.30),
-                  (x + w * 0.76, y + h * 0.48), (x + w * 0.92, y + h * 0.48)],
-                 fill=(88, 86, 80))
-    draw.rectangle([x + w * 0.80, y + h * 0.18, x + w * 0.88, y + h * 0.48],
-                   fill=(96, 94, 88))
-    _flames(draw, x + w * 0.50, y + h * 0.50, scale=0.55)
-    _smoke(draw, x + w * 0.84, y + h * 0.12, 8)
-    for i in range(3):
-        wx = x + w * (0.16 + i * 0.28)
-        draw.rectangle([wx, y + h * 0.62, wx + 16, y + h * 0.78],
-                       fill=(240, 170, 40))
+    """A factory on fire at night, photographed."""
+    photo("factory", x, y, w, h)
 
 
 def art_school(draw, x, y, w, h):
-    """An exam paper with red marks and a pencil, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(226, 220, 204))
-    draw.rectangle([x + w * 0.24, y + h * 0.08, x + w * 0.72, y + h * 0.92],
-                   fill=(255, 253, 246), outline=INK)
-    for i in range(4):
-        ly = y + h * (0.28 + i * 0.16)
-        draw.line([x + w * 0.30, ly, x + w * 0.66, ly], fill=GREY, width=1)
-    draw.text((x + w * 0.30, y + h * 0.10), "EXAM", font=font("sans_bold", 10),
-              fill=INK)
-    # Two red crosses over the answers.
-    for cx, cy in ((0.62, 0.34), (0.62, 0.50)):
-        px, py = x + w * cx, y + h * cy
-        draw.line([px - 5, py - 5, px + 5, py + 5], fill=RED, width=2)
-        draw.line([px - 5, py + 5, px + 5, py - 5], fill=RED, width=2)
-    draw.polygon([(x + w * 0.80, y + h * 0.70), (x + w * 0.88, y + h * 0.62),
-                  (x + w * 0.94, y + h * 0.86), (x + w * 0.86, y + h * 0.94)],
-                 fill=(240, 170, 40))
-    draw.polygon([(x + w * 0.88, y + h * 0.62), (x + w * 0.90, y + h * 0.58),
-                  (x + w * 0.94, y + h * 0.66)], fill=(163, 30, 30))
+    """An examination hall, photographed from the back."""
+    photo("school", x, y, w, h)
 
 
 def art_globe(draw, x, y, w, h):
-    """A globe with an orbit ring, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(226, 228, 220))
-    cx, cy, r = x + w * 0.42, y + h * 0.52, min(w, h) * 0.34
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(64, 110, 160))
-    draw.ellipse([cx - r * 0.45, cy - r * 0.7, cx + r * 0.3, cy - r * 0.1],
-                 fill=(90, 140, 80))
-    draw.ellipse([cx - r * 0.2, cy + r * 0.25, cx + r * 0.75, cy + r * 0.8],
-                 fill=(90, 140, 80))
-    draw.ellipse([cx - r - 6, cy - r - 6, cx + r + 6, cy + r + 6],
-                 outline=(163, 30, 30), width=2)
-    draw.text((x + w * 0.74, y + h * 0.12), "128", font=font("sans_bold", 14),
-              fill=RED)
-    draw.text((x + w * 0.74, y + h * 0.40), "STATES", font=font("sans_bold", 8),
-              fill=INK)
+    """A United Nations assembly hall, photographed."""
+    photo("globe", x, y, w, h)
 
 
 def art_trophy(draw, x, y, w, h):
-    """A gold trophy and a football, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(238, 234, 214))
-    cx = x + w * 0.38
-    draw.polygon([(cx - 18, y + h * 0.10), (cx + 18, y + h * 0.10),
-                  (cx + 12, y + h * 0.52), (cx - 12, y + h * 0.52)],
-                 fill=(216, 170, 60))
-    draw.arc([cx - 26, y + h * 0.12, cx - 8, y + h * 0.40], 90, 270,
-             fill=(216, 170, 60), width=4)
-    draw.arc([cx + 8, y + h * 0.12, cx + 26, y + h * 0.40], -90, 90,
-             fill=(216, 170, 60), width=4)
-    draw.rectangle([cx - 4, y + h * 0.52, cx + 4, y + h * 0.68],
-                   fill=(216, 170, 60))
-    draw.rectangle([cx - 16, y + h * 0.68, cx + 16, y + h * 0.76],
-                   fill=(216, 170, 60))
-    bx, by = x + w * 0.76, y + h * 0.68
-    draw.ellipse([bx - 14, by - 14, bx + 14, by + 14], fill=(255, 253, 246),
-                 outline=INK)
-    draw.ellipse([bx - 4, by - 4, bx + 4, by + 4], fill=INK)
-    for dx, dy in ((-9, -8), (9, -8), (-11, 6), (11, 6)):
-        draw.ellipse([bx + dx - 2, by + dy - 2, bx + dx + 2, by + dy + 2],
-                     fill=INK)
+    """A football stadium under floodlights, photographed."""
+    photo("trophy", x, y, w, h)
 
 
 def art_mercury(draw, x, y, w, h):
-    """Mercury and the BepiColombo probe, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(24, 28, 44))
-    for sx, sy in ((0.12, 0.16), (0.30, 0.10), (0.86, 0.14), (0.92, 0.60),
-                   (0.08, 0.70)):
-        draw.ellipse([x + w * sx, y + h * sy, x + w * sx + 2, y + h * sy + 2],
-                     fill=(255, 253, 246))
-    cx, cy, r = x + w * 0.38, y + h * 0.52, min(w, h) * 0.30
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(150, 146, 138))
-    for dx, dy, cr in ((-0.4, -0.3, 4), (0.3, 0.1, 5), (-0.1, 0.45, 3),
-                       (0.5, -0.4, 3)):
-        draw.ellipse([cx + dx * r - cr, cy + dy * r - cr,
-                      cx + dx * r + cr, cy + dy * r + cr],
-                     fill=(120, 116, 108))
-    # The probe, with solar panels.
-    px, py = x + w * 0.78, y + h * 0.30
-    draw.rectangle([px - 10, py - 3, px - 2, py + 3], fill=(64, 110, 160))
-    draw.rectangle([px + 2, py - 3, px + 10, py + 3], fill=(64, 110, 160))
-    draw.rectangle([px - 3, py - 5, px + 3, py + 5], fill=(220, 218, 210))
+    """Mercury and a probe, photographed in space."""
+    photo("mercury", x, y, w, h)
 
 
 def art_smog(draw, x, y, w, h):
-    """A city skyline under a smog haze, flat."""
-    draw.rectangle([x, y, x + w, y + h], fill=(222, 200, 160))
-    draw.ellipse([x + w * 0.76, y + h * 0.10, x + w * 0.94, y + h * 0.34],
-                 fill=(230, 120, 40))
-    for bx, bw, bh in ((0.06, 0.16, 0.52), (0.26, 0.20, 0.68),
-                       (0.50, 0.16, 0.44), (0.70, 0.20, 0.60)):
-        draw.rectangle([x + w * bx, y + h * (1 - bh), x + w * (bx + bw), y + h],
-                       fill=(110, 104, 92))
-    draw.rectangle([x, y + h * 0.62, x + w, y + h * 0.78],
-                   fill=(196, 168, 120))
-    draw.text((x + 6, y + 4), "AQI 538", font=font("sans_bold", 13),
-              fill=RED)
+    """A city skyline under smog, photographed."""
+    photo("smog", x, y, w, h)
 
 
 ART = {
@@ -467,26 +300,38 @@ ART = {
     "smog": art_smog,
 }
 
-# Simplified world map, in a 290 x 172 box: lon -170..190, lat 75..-55.
+# World map, in a 290 x 172 box: lon -170..190, lat 75..-55. Simplified
+# but recognisable: each continent keeps its real shape and place.
 CONTINENTS = [
-    [(14, 42), (40, 26), (72, 20), (96, 30), (104, 44), (98, 58), (86, 66),
-     (70, 58), (58, 66), (34, 60), (18, 52)],
-    [(72, 8), (92, 6), (96, 16), (78, 18)],
-    [(82, 88), (104, 82), (118, 96), (112, 120), (100, 142), (90, 124),
-     (82, 104)],
-    [(136, 34), (158, 26), (176, 34), (170, 50), (152, 52), (140, 44)],
-    [(140, 68), (168, 64), (186, 78), (178, 104), (160, 122), (146, 104),
-     (138, 84)],
-    [(176, 30), (220, 20), (262, 28), (276, 44), (262, 62), (236, 72),
-     (212, 66), (192, 52), (178, 44)],
-    [(232, 84), (246, 88), (258, 92)],
-    [(238, 124), (268, 122), (274, 140), (246, 146), (234, 134)],
+    # North America.
+    [(16, 36), (28, 18), (52, 12), (84, 10), (104, 20), (96, 32),
+     (80, 40), (70, 56), (56, 70), (36, 62), (20, 50)],
+    # Greenland.
+    [(86, 6), (100, 4), (105, 12), (92, 16)],
+    # South America.
+    [(82, 88), (96, 84), (110, 92), (118, 106), (110, 126), (100, 146),
+     (92, 130), (84, 106)],
+    # Europe.
+    [(136, 30), (148, 18), (164, 16), (172, 26), (166, 38), (152, 44),
+     (140, 40)],
+    # Africa.
+    [(140, 58), (158, 50), (175, 55), (180, 70), (170, 96), (158, 112),
+     (146, 100), (138, 76)],
+    # Asia.
+    [(170, 20), (200, 8), (240, 10), (274, 20), (282, 36), (270, 56),
+     (250, 70), (230, 72), (210, 60), (196, 46), (176, 36)],
+    # South-East Asian islands.
+    [(214, 86), (230, 82), (246, 88), (236, 98), (220, 96)],
+    # Australia.
+    [(238, 118), (260, 112), (272, 122), (262, 138), (242, 136),
+     (234, 126)],
 ]
-# Story number -> pin position in the map box.
+# Story number -> pin position in the map box, spread so no two pins
+# in Europe sit on top of each other.
 PINS = {
-    1: (183, 64), 2: (162, 50), 3: (168, 32), 4: (152, 24),
-    5: (234, 68), 6: (153, 57), 7: (50, 65), 8: (222, 107),
-    9: (239, 50), 10: (140, 46), 11: (132, 28), 13: (197, 58),
+    1: (183, 64), 2: (164, 48), 3: (165, 33), 4: (148, 26),
+    5: (77, 45), 6: (150, 59), 7: (50, 65), 8: (222, 107),
+    9: (239, 50), 10: (144, 40), 11: (132, 28), 13: (197, 58),
 }
 
 REGION_COLORS = [
@@ -515,8 +360,10 @@ def fit_brief(draw, text, source, width):
 
 def render(out_path):
     """Compose the front page and write it to out_path. Returns info."""
+    global _PAGE
     stories.validate()
     img = Image.new("RGB", (W, H), PAPER)
+    _PAGE = img
     grain(img)
     draw = ImageDraw.Draw(img)
 
