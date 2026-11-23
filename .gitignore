@@ -15,6 +15,11 @@
 # land to one cream colour; a one-line map credit sits under the map.
 # v7 briefs: two 317 px columns starting at x=356 (longest brief
 # still fits at 12 pt, verified by measurement before the edit).
+# v8: brief #30 rewritten to fit its column with no ellipsis
+# ("Taiwan: FSC eyes margin cut to 120%", 286.1 px vs 297.9 px
+# available at 11 pt, measured with the real serif font) — the
+# source tag stays in stories.py for validate(); briefs render
+# without the tag, as all 25 briefs do.
 out/
 __pycache__/
 *.pyc

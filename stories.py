@@ -228,7 +228,12 @@ BRIEFS = [
      "Reuters"),
     ("29", "S. Korea: finance chief sees solid growth",
      "Reuters"),
-    ("30", "Taiwan: FSC weighs margin-ratio cut to 120%",
+    # v8: #30 rewritten ("weighs margin-ratio cut" -> "eyes margin
+    # cut") so the whole line fits at 11 pt in the 317 px column
+    # (measured 286.1 px vs 297.9 px available) with no ellipsis;
+    # the source stays in the data for validate(), as with the
+    # other briefs (fit_brief renders briefs without the tag).
+    ("30", "Taiwan: FSC eyes margin cut to 120%",
      "Bloomberg"),
     ("31", "US: Democrats reach 258 House seats",
      "AP"),
