@@ -31,7 +31,8 @@ briefs below the map cover the rest of the day, from Manipur to the
 Baltic.
 
 All thirteen pictures on the page are generated press photographs;
-the world map stays a drawn diagram.
+the world map is drawn from hand-written coastline polygons in lon/lat
+(v4), projected equirectangular, so its continents are the real ones.
 
 ## How it runs
 
@@ -67,7 +68,8 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
 - `main.py` — the entrypoint: composes the page, or copies the prebuilt
   image when Pillow is missing
 - `composer.py` — the renderer: masthead, UTC strip, region bar, leads,
-  grid, map, briefs, DATE CHECK
+  grid, map (hand-written coastline polygons + numbered pins), briefs,
+  DATE CHECK
 - `stories.py` — the thirty-eight stories of 23 November 2026, each with
   its source
 - `assets/` — the prebuilt `entry.png` plus the thirteen press

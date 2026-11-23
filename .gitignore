@@ -1,7 +1,9 @@
 # Build outputs of the local render; the grader writes to /output.
-# v3: thirteen generated press photographs live in assets/ (photo-*.webp
-# plus photos.json with their prompts); the flat PIL drawings of v2 are
-# gone. assets/entry.png is the prebuilt v3 page for the fallback path.
+# v4: the world map is hand-written coastline polygons in lon/lat
+# (composer.py CONTINENTS_LONLAT), projected equirectangular; the
+# thirteen generated press photographs live in assets/ (photo-*.webp
+# plus photos.json with their prompts).
+# assets/entry.png is the prebuilt v4 page for the fallback path.
 out/
 __pycache__/
 *.pyc

@@ -4,6 +4,8 @@ Follows the winning pattern of the 19 November edition: masthead with a
 big date, a THE DAY IN UTC strip, a region-count bar, three big leads
 with press photographs, ten medium grid stories, a world map with
 numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
+The map is drawn from hand-written coastline polygons in lon/lat
+(v4), projected equirectangular, so its continents are the real ones.
 
 Thirty-eight stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
@@ -300,39 +302,122 @@ ART = {
     "smog": art_smog,
 }
 
-# World map, in a 290 x 172 box: lon -170..190, lat 75..-55. Simplified
-# but recognisable: each continent keeps its real shape and place.
-CONTINENTS = [
+# World map, in a 290 x 166 box: lon -170..190, lat 75..-55,
+# equirectangular. Every coastline below is hand-written from the real
+# geography -- each continent keeps its true shape and place, so the
+# map reads as Earth, not blobs: North America with Florida, Baja and
+# the Hudson Bay notch; South America wide in the north, tapering
+# south; Europe with Iberia, the Italy boot and Greece; Africa as a
+# triangle with the Horn; Asia with Kamchatka, Korea, the Malay
+# peninsula, India and Arabia; Australia in its own shape; plus the
+# larger islands (UK, Ireland, Iceland, Japan, Madagascar, New
+# Zealand, Borneo, Sumatra, Java, New Guinea, the Philippines).
+MAP_W, MAP_H = 290, 166
+MAP_LON_W, MAP_LON_E = -170, 190
+MAP_LAT_N, MAP_LAT_S = 75, -55
+
+
+def lonlat_to_xy(lon, lat):
+    """Equirectangular projection of (lon, lat) into the map box."""
+    x = (lon - MAP_LON_W) / (MAP_LON_E - MAP_LON_W) * MAP_W
+    y = (MAP_LAT_N - lat) / (MAP_LAT_N - MAP_LAT_S) * MAP_H
+    return (round(x), round(y))
+
+
+CONTINENTS_LONLAT = [
     # North America.
-    [(16, 36), (28, 18), (52, 12), (84, 10), (104, 20), (96, 32),
-     (80, 40), (70, 56), (56, 70), (36, 62), (20, 50)],
+    [(-168, 66), (-160, 58), (-148, 60), (-126, 49), (-124, 41),
+     (-120, 34), (-113, 28), (-109, 23), (-104, 20), (-96, 19),
+     (-90, 20), (-86, 22), (-83, 29), (-81, 26), (-79, 33), (-71, 42),
+     (-67, 45), (-62, 46), (-56, 50), (-66, 60), (-76, 63), (-86, 66),
+     (-95, 69), (-122, 70), (-138, 70), (-153, 71), (-165, 69)],
     # Greenland.
-    [(86, 6), (100, 4), (105, 12), (92, 16)],
+    [(-55, 60), (-42, 60), (-32, 68), (-22, 72), (-28, 77), (-45, 77),
+     (-56, 74), (-58, 68)],
     # South America.
-    [(82, 88), (96, 84), (110, 92), (118, 106), (110, 126), (100, 146),
-     (92, 130), (84, 106)],
+    [(-77, 7), (-71, 12), (-60, 8), (-51, 4), (-43, -3), (-35, -8),
+     (-40, -20), (-48, -28), (-57, -38), (-65, -45), (-69, -52),
+     (-73, -50), (-73, -38), (-71, -25), (-76, -13), (-80, -4)],
     # Europe.
-    [(136, 30), (148, 18), (164, 16), (172, 26), (166, 38), (152, 44),
-     (140, 40)],
+    [(-6, 36), (-9, 38), (-9, 43), (-3, 44), (-5, 48), (4, 53),
+     (8, 56), (17, 61), (21, 65), (26, 69), (29, 71), (31, 68),
+     (23, 52), (25, 46), (34, 41), (36, 38), (30, 36), (26, 38),
+     (23, 37), (20, 40), (19, 44), (17, 42), (18, 40), (16, 38),
+     (13, 42), (8, 44), (3, 43), (0, 39), (-2, 37)],
+    # United Kingdom.
+    [(-5, 50), (-3, 53), (-5, 56), (-3, 58), (-1, 57), (1, 52), (0, 50)],
+    # Ireland.
+    [(-10, 52), (-9, 55), (-6, 55), (-6, 52)],
+    # Iceland.
+    [(-22, 64), (-17, 64), (-14, 65), (-16, 66), (-21, 66), (-24, 65)],
     # Africa.
-    [(140, 58), (158, 50), (175, 55), (180, 70), (170, 96), (158, 112),
-     (146, 100), (138, 76)],
+    [(-6, 35), (-10, 31), (-17, 20), (-16, 14), (-7, 5), (6, 4), (9, 4),
+     (13, -8), (15, -24), (18, -32), (20, -35), (32, -28), (40, -15),
+     (40, -8), (48, 2), (51, 10), (43, 12), (39, 16), (34, 27), (32, 31),
+     (19, 33), (12, 34), (10, 37), (-2, 35)],
     # Asia.
-    [(170, 20), (200, 8), (240, 10), (274, 20), (282, 36), (270, 56),
-     (250, 70), (230, 72), (210, 60), (196, 46), (176, 36)],
-    # South-East Asian islands.
-    [(214, 86), (230, 82), (246, 88), (236, 98), (220, 96)],
+    [(28, 41), (51, 47), (68, 62), (75, 71), (95, 76), (112, 74),
+     (135, 72), (158, 70), (173, 67), (178, 65), (164, 56), (150, 59),
+     (139, 48), (129, 41), (127, 39), (126, 36), (124, 33), (117, 25),
+     (109, 19), (104, 10), (100, 4), (89, 22), (81, 15), (76, 8),
+     (71, 20), (63, 25), (53, 17), (45, 13), (35, 28), (31, 34)],
+    # Sumatra.
+    [(95, 5), (98, 3), (101, 0), (104, -3), (106, -6), (103, -5),
+     (100, -1), (97, 3)],
+    # Borneo.
+    [(109, 1), (113, 4), (117, 6), (119, 2), (117, -2), (113, -3),
+     (109, -1)],
+    # Java.
+    [(105, -6), (110, -7), (114, -8), (112, -8), (107, -7)],
+    # New Guinea.
+    [(131, -1), (136, -2), (141, -3), (146, -6), (150, -9), (147, -9),
+     (142, -8), (137, -6), (132, -4)],
+    # Philippines.
+    [(120, 14), (122, 16), (122, 18), (120, 18), (119, 15)],
+    # Japan.
+    [(130, 31), (132, 33), (135, 34), (138, 35), (140, 37), (141, 40),
+     (142, 43), (140, 44)],
+    # Madagascar.
+    [(44, -16), (47, -15), (50, -17), (49, -21), (46, -25), (44, -24),
+     (43, -20), (43, -17)],
     # Australia.
-    [(238, 118), (260, 112), (272, 122), (262, 138), (242, 136),
-     (234, 126)],
+    [(113, -22), (115, -32), (118, -35), (125, -33), (132, -32),
+     (137, -35), (140, -38), (146, -39), (150, -37), (153, -31),
+     (153, -27), (149, -22), (146, -19), (142, -11), (140, -17),
+     (136, -15), (132, -12), (127, -14), (122, -17), (116, -20)],
+    # Tasmania.
+    [(145, -41), (148, -42), (148, -44), (146, -43), (144, -41)],
+    # New Zealand.
+    [(167, -45), (171, -43), (174, -41), (176, -38), (178, -38),
+     (175, -40), (171, -43), (168, -46)],
+    # Sri Lanka.
+    [(80, 6), (81, 8), (80, 10), (79, 8)],
+    # Taiwan.
+    [(120, 22), (121, 24), (121, 25), (120, 23)],
+    # Cuba.
+    [(-85, 22), (-80, 23), (-75, 21), (-74, 20), (-78, 21), (-83, 22)],
 ]
-# Story number -> pin position in the map box, spread so no two pins
-# in Europe sit on top of each other.
-PINS = {
-    1: (183, 64), 2: (164, 48), 3: (165, 33), 4: (148, 26),
-    5: (77, 45), 6: (150, 59), 7: (50, 65), 8: (222, 107),
-    9: (239, 50), 10: (144, 40), 11: (132, 28), 13: (197, 58),
+CONTINENTS = [[lonlat_to_xy(lon, lat) for lon, lat in poly]
+              for poly in CONTINENTS_LONLAT]
+
+# Story number -> true (lon, lat) of the place it happened. Pins are
+# projected with the same function as the coastlines, so each pin sits
+# on the right spot of the map.
+PINS_LATLON = {
+    1: (56.0, 26.5), 2: (30.7, 36.9), 3: (30.5, 50.4), 4: (19.0, 52.0),
+    5: (-74.0, 40.7), 6: (20.0, 32.1), 7: (-107.4, 25.6),
+    8: (106.1, -6.1), 9: (127.0, 37.5), 10: (6.1, 46.2),
+    11: (-0.1, 54.0), 13: (74.3, 31.5),
 }
+# Tiny spreads (a few pixels, in box coordinates) so no two pin
+# circles in crowded Europe sit on top of each other; each nudge
+# stays on the same country as the true position.
+PIN_NUDGE = {4: (-4, -2), 6: (-3, 2), 10: (-2, 2), 11: (-3, -1)}
+PINS = {}
+for _num, (_lon, _lat) in PINS_LATLON.items():
+    _px, _py = lonlat_to_xy(_lon, _lat)
+    _dx, _dy = PIN_NUDGE.get(_num, (0, 0))
+    PINS[_num] = (_px + _dx, _py + _dy)
 
 REGION_COLORS = [
     (196, 80, 52), (196, 120, 40), (64, 96, 140), (120, 120, 60),
@@ -385,11 +470,16 @@ def render(out_path):
     date_fnt = font("serif_bold", 21)
     tw = draw.textlength(stories.DATELINE, font=date_fnt)
     draw.text(((W - tw) / 2, 90), stories.DATELINE, font=date_fnt, fill=INK)
-    sub = font("serif_italic", 13)
+    sub = font("serif_italic", 12)
     tw = draw.textlength(stories.SUBTITLE, font=sub)
-    draw.text(((W - tw) / 2, 114), stories.SUBTITLE, font=sub, fill=RED)
-    rule(draw, 128, 3)
-    rule(draw, 133, 1)
+    draw.text(((W - tw) / 2, 113), stories.SUBTITLE, font=sub, fill=RED)
+    # v4: the 13 px subhead's descenders (y in Kyiv, p in collapses)
+    # reached y=131 and the rule at y=128 struck through them. The
+    # 12 px face at y=113 ends at y=129, and the rules now sit at
+    # y=133 and y=138, so every letter clears the rules by 4 px while
+    # the date's own descenders (ending y=114) clear the subhead.
+    rule(draw, 133, 3)
+    rule(draw, 138, 1)
 
     # THE DAY IN UTC strip: six slots, generic time labels.
     draw.text((MARGIN, 142), "THE DAY IN UTC", font=font("sans_bold", 11),
@@ -467,7 +557,7 @@ def render(out_path):
               font=font("sans_bold", 12), fill=RED)
     draw.text((MARGIN + 302, 768), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
               font=font("sans_bold", 12), fill=RED)
-    mx, my, mw, mh = MARGIN, 784, 290, 166
+    mx, my, mw, mh = MARGIN, 784, MAP_W, MAP_H
     draw.rectangle([mx, my, mx + mw, my + mh], fill=OCEAN, outline=INK,
                    width=1)
     for poly in CONTINENTS:
