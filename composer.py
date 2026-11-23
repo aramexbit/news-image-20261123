@@ -5,11 +5,13 @@ big date, a THE DAY IN UTC strip, a region-count bar, three big leads
 with press photographs, ten medium grid stories, a world map with
 numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
 The map is a real equirectangular world map (NASA Blue Marble, public
-domain) recolored into the page palette by tools/recolor_map.py (v6),
-so its continents are the real ones at full detail. Grid thumbnails
-are 58 px tall (v6), up from 52, and the darkest grid photos are
-gamma-lifted by tools/brighten_grid.py, so every thumbnail reads;
-every lead body ends on a full stop inside its 3-line box.
+domain) kept in its true satellite colours and true proportions by
+tools/recolor_map.py (v7), so it reads as a photograph of the Earth,
+not a flat drawing: deep blue ocean, green and brown land, white polar
+ice. Grid thumbnails are 58 px tall (v6), up from 52, and the darkest
+grid photos are gamma-lifted by tools/brighten_grid.py, so every
+thumbnail reads; every lead body ends on a full stop inside its
+3-line box.
 
 Thirty-eight stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
@@ -307,16 +309,18 @@ ART = {
     "smog": art_smog,
 }
 
-# World map, in a 290 x 166 box: lon -180..180, lat 75..-55,
-# equirectangular. v6 replaces the hand-written coastline polygons of
-# v4/v5 with a real world map: NASA Blue Marble Next Generation +
-# topography + bathymetry (public domain), recolored into the page
-# palette by tools/recolor_map.py and stored as assets/world-map.png.
+# World map, in a 320 x 127 box: lon -180..180, lat 83..-60,
+# equirectangular. v6 used a 290x166 box for 360x130 degrees and
+# stretched every continent 1.58x vertically; v7 keeps the true
+# equirectangular aspect (360/143 = 2.52, box 320/127 = 2.52) and
+# the satellite's own colours: NASA Blue Marble Next Generation +
+# topography + bathymetry (public domain), lightly toned for the
+# newsprint by tools/recolor_map.py and stored as assets/world-map.png.
 # Pins are still projected from true (lon, lat) with the same function
 # as the map image, so each pin sits on the right spot of the map.
-MAP_W, MAP_H = 290, 166
+MAP_W, MAP_H = 320, 127
 MAP_LON_W, MAP_LON_E = -180, 180
-MAP_LAT_N, MAP_LAT_S = 75, -55
+MAP_LAT_N, MAP_LAT_S = 83, -60
 
 
 def lonlat_to_xy(lon, lat):
@@ -330,7 +334,7 @@ _MAP_CACHE = None
 
 
 def map_image():
-    """The recolored real world map for the box, cached; 290x166."""
+    """The true-colour real world map for the box, cached; 320x127."""
     global _MAP_CACHE
     if _MAP_CACHE is None:
         _MAP_CACHE = Image.open(os.path.join(ASSETS, "world-map.png"))
@@ -351,8 +355,15 @@ PINS_LATLON = {
 }
 # Tiny spreads (a few pixels, in box coordinates) so no two pin
 # circles in crowded Europe sit on top of each other; each nudge
-# stays on the same country as the true position.
-PIN_NUDGE = {4: (-4, -2), 6: (-3, 2), 10: (-2, 2), 11: (-3, -1)}
+# stays on the same country as the true position. Recomputed for
+# the v7 box (320x127, lat 83..-60), where one pixel is 1.13 degrees:
+# a 3 px south nudge would push Geneva into the Mediterranean, so
+# 10 sits on its true position; 11 goes up-left onto Scotland, 4
+# up onto northern Poland, 3 right into eastern Ukraine, and 6
+# down-left along the Libyan coast, away from Antalya. Pin 2 stays
+# on Antalya itself: the city is on the coast, so its centre pixel
+# reads as sea while the circle straddles the shoreline.
+PIN_NUDGE = {3: (3, 0), 4: (0, -2), 6: (-3, 2), 11: (-4, -2)}
 PINS = {}
 for _num, (_lon, _lat) in PINS_LATLON.items():
     _px, _py = lonlat_to_xy(_lon, _lat)
@@ -495,10 +506,13 @@ def render(out_path):
                       font=font("serif_italic", 9), fill=GREY)
     rule(draw, 768, 1)
 
-    # Map + briefs.
+    # Map + briefs. v7: the map box is 320x127 at true equirectangular
+    # aspect, so the briefs start at x=356 in two 317 px columns (the
+    # longest brief still fits at 12 pt). A one-line credit sits under
+    # the map, filling the space the shorter true-aspect box leaves.
     draw.text((MARGIN, 770), "WHERE IT HAPPENED",
               font=font("sans_bold", 12), fill=RED)
-    draw.text((MARGIN + 302, 770), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
+    draw.text((MARGIN + 332, 770), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
               font=font("sans_bold", 12), fill=RED)
     mx, my, mw, mh = MARGIN, 786, MAP_W, MAP_H
     _PAGE.paste(map_image(), (mx, my))
@@ -510,10 +524,14 @@ def render(out_path):
         tw = draw.textlength(str(num), font=nf)
         draw.text((mx + px - tw / 2, my + py - 5), str(num), font=nf,
                   fill=(255, 255, 255))
+    draw.text((MARGIN, 919),
+              "Map: NASA Blue Marble \u2014 public domain \u00b7 Red pins "
+              "mark stories 1\u201313",
+              font=font("serif_italic", 9), fill=GREY)
     # Briefs in two columns: 13 left, 12 right.
-    brief_w = 332
+    brief_w = 317
     for col in range(2):
-        bx = MARGIN + 302 + col * (brief_w + 10)
+        bx = MARGIN + 332 + col * (brief_w + 10)
         chunk = stories.BRIEFS[col * 13:(col + 1) * 13]
         by = 786
         for num, text, source in chunk:

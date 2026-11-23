@@ -10,6 +10,11 @@
 # built by tools/recolor_map.py); grid thumbnails 58 px tall, darkest
 # grid photos gamma-lifted by tools/brighten_grid.py. The raw NASA
 # source image stays out of the repo (downloaded to /tmp only).
+# v7: the map keeps the satellite's true colours and true proportions
+# (320x127, lat 83..-60) — tools/recolor_map.py no longer flattens
+# land to one cream colour; a one-line map credit sits under the map.
+# v7 briefs: two 317 px columns starting at x=356 (longest brief
+# still fits at 12 pt, verified by measurement before the edit).
 out/
 __pycache__/
 *.pyc

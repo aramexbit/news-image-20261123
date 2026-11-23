@@ -34,14 +34,17 @@ All thirteen pictures on the page are generated press photographs; the
 world map is a real one. Its source is the NASA Blue Marble Next
 Generation world map with topography and bathymetry (August 2004,
 3600x1800, equirectangular, produced by Reto Stoeckli, NASA Earth
-Observatory) — NASA imagery is public domain — recolored into the page
-palette (cream land, pale-blue sea) by `tools/recolor_map.py`, which
-computes the land/ocean split from the picture itself. The recolored
-map is stored as `assets/world-map.png`; the entry program only ever
-reads that PNG, so the render needs no network. The six darkest grid
-photographs were gamma-lifted in place by `tools/brighten_grid.py`
-(v6), and Mercury's thumbnail focus was moved onto the lit planet, so
-every grid thumbnail reads at its small size.
+Observatory) — NASA imagery is public domain — kept in its true
+satellite colours (deep blue ocean, green and brown land, white polar
+ice) and true equirectangular proportions (320x127 for lon -180..180,
+lat 83..-60) by `tools/recolor_map.py` (v7; v6 flattened the same
+source to one cream land colour and stretched it 1.58x vertically,
+which read as a flat cartoon). The map is stored as
+`assets/world-map.png`; the entry program only ever reads that PNG,
+so the render needs no network. The six darkest grid photographs
+were gamma-lifted in place by `tools/brighten_grid.py` (v6), and
+Mercury's thumbnail focus was moved onto the lit planet, so every
+grid thumbnail reads at its small size.
 
 ## How it runs
 
@@ -84,5 +87,6 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
 - `assets/` — the prebuilt `entry.png`, the recolored world map
   (`world-map.png`) plus the thirteen press photographs
   (`photo-*.webp`) and their provenance in `photos.json`
-- `tools/` — `recolor_map.py` (NASA map into the page palette) and
-  `brighten_grid.py` (gamma lift for the darkest grid photos)
+- `tools/` — `recolor_map.py` (NASA map in true satellite colours and
+  proportions) and `brighten_grid.py` (gamma lift for the darkest
+  grid photos)

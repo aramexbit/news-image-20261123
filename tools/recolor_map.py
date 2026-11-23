@@ -1,10 +1,14 @@
-"""Recolor a real equirectangular world map into the page palette.
+"""Keep the real NASA Blue Marble colours for the front-page world map.
 
-Build-time tool for THE WORLD HERALD (news-image-20261123 v6). It turns
-the NASA Blue Marble Next Generation world map (public domain) into the
-small flat-colour map the front page pastes under WHERE IT HAPPENED.
+Build-time tool for THE WORLD HERALD (news-image-20261123 v7). It
+turns the NASA Blue Marble Next Generation world map (public domain)
+into the small map the front page pastes under WHERE IT HAPPENED —
+with the satellite's own colours kept: deep blue ocean, green and
+brown land, white ice, real texture. v6 flattened the same source
+into one cream land colour and one pale-blue sea colour, and the map
+read as a flat cartoon; v7 keeps the photograph.
 
-Source (downloaded once, kept outside the repo):
+Source (downloaded once, kept outside the repo in /tmp):
     NASA Blue Marble: Next Generation + topography + bathymetry,
     August 2004, 3600x1800 JPEG, equirectangular (Plate Carree),
     lon -180..180, lat 90..-90. Produced by Reto Stoeckli, NASA Earth
@@ -13,24 +17,21 @@ Source (downloaded once, kept outside the repo):
     "Blue Marble Next Generation + topography + bathymetry.jpg".
     Direct file: https://upload.wikimedia.org/wikipedia/commons/5/56/
     Blue_Marble_Next_Generation_%2B_topography_%2B_bathymetry.jpg
-    The source is a JPEG; the repo asset is the recolored PNG this
-    script writes (assets/world-map.png). The entry program only ever
-    reads that PNG, so the render needs no network.
+    The repo asset is the PNG this script writes
+    (assets/world-map.png). The entry program only ever reads that
+    PNG, so the render needs no network.
 
-Method (no data file is read in: the land/ocean split is computed here
-from the picture itself):
-    1. A pixel is ocean when its blue channel beats red by more than 12
-       and green by more than 8. Deep ocean, shallow turquoise water and
-       the Persian Gulf all pass; green forest, tan desert, brown rock
-       and white ice all fail, so they read as land.
-    2. A 3x3 median filter clears single-pixel speckle (JPEG noise and
-       tiny islands too small to draw).
-    3. The latitude window lat 75..-55 is cropped (the same window the
-       front page pins use), then the mask is resized to the 290x166 map
-       box with LANCZOS, which anti-aliases the coastlines.
-    4. Land is painted cream (250, 244, 228), ocean pale blue
-       (214, 226, 232), and the one-pixel coastline edge is painted a
-       muted tan (150, 140, 120), all in the page palette.
+Method (no data file is read in: the picture itself is the map):
+    1. Crop the latitude window lat 83..-60 — the same window the
+       front-page pins use — so the picture and the pins share one
+       equirectangular projection.
+    2. Resize to the 320x127 map box with LANCZOS. 360 degrees of
+       longitude over 143 degrees of latitude is an aspect of 2.52,
+       and 320/127 is 2.52, so the continents keep their true
+       proportions instead of the 1.58x vertical stretch of v6.
+    3. Light touches only, so it sits on newsprint without shouting:
+       desaturate to 0.88, contrast 1.06, then blend 10% toward the
+       paper colour. Land is never flattened to one colour.
 
 Usage:
     python3 tools/recolor_map.py /tmp/bluemarble.jpg assets/world-map.png
@@ -39,63 +40,60 @@ Usage:
 import hashlib
 import sys
 
-from PIL import Image, ImageChops, ImageFilter
+from PIL import Image, ImageEnhance
 
-# Map box on the front page: lon -180..180, lat 75..-55, 290x166 px.
-MAP_W, MAP_H = 290, 166
-LAT_N, LAT_S = 75, -55
+# Map box on the front page: lon -180..180, lat 83..-60, 320x127 px.
+# True equirectangular aspect: 360/143 = 2.52; box aspect 320/127 =
+# 2.52. v6 used 290x166 for 360x130 degrees (aspect 1.75 against a
+# true 2.77), which stretched every continent 1.58x vertically.
+MAP_W, MAP_H = 320, 127
+LAT_N, LAT_S = 83, -60
 
-OCEAN = (214, 226, 232)
-LAND = (250, 244, 228)
-COAST = (150, 140, 120)
-
-
-def ocean_mask(img):
-    """Binary mask (255 = ocean) from the blue-dominance test."""
-    r, g, b = img.split()
-    over_red = ImageChops.subtract(b, r).point(lambda v: 255 if v > 12 else 0)
-    over_green = ImageChops.subtract(b, g).point(lambda v: 255 if v > 8 else 0)
-    ocean = ImageChops.multiply(over_red, over_green)
-    return ocean.filter(ImageFilter.MedianFilter(3))
+PAPER = (248, 242, 227)
 
 
-def recolor(source, target):
-    """Build the flat-colour map PNG and return its stats."""
+def natural_map(source, target):
+    """Build the true-colour map PNG and return its stats."""
     img = Image.open(source).convert("RGB")
     width, height = img.size
     if width != 2 * height:
         raise SystemExit("source is not 2:1 equirectangular: %s" % (img.size,))
-    land = ImageChops.invert(ocean_mask(img))
-    # Latitude window of the front-page map box.
+    # Latitude window of the front-page map box. lat 83..-60 keeps
+    # Greenland and Svalbard in frame while cutting Antarctica (its
+    # white mass would eat the bottom fifth of the box) and the empty
+    # polar ocean above 83N, so the inhabited continents fill the box.
     y0 = int((90 - LAT_N) / 180 * height)
     y1 = int((90 - LAT_S) / 180 * height)
-    land = land.crop((0, y0, width, y1)).resize((MAP_W, MAP_H), Image.LANCZOS)
-    ocean_img = Image.new("RGB", (MAP_W, MAP_H), OCEAN)
-    land_img = Image.new("RGB", (MAP_W, MAP_H), LAND)
-    page = Image.composite(land_img, ocean_img, land)
-    # Coastline: land pixels next to ocean, painted muted tan.
-    eroded = land.filter(ImageFilter.MinFilter(3))
-    edge = ImageChops.subtract(land, eroded)
-    coast_img = Image.new("RGB", (MAP_W, MAP_H), COAST)
-    page = Image.composite(coast_img, page, edge)
-    page.save(target, format="PNG", optimize=True)
-    hist = land.histogram()
-    total = sum(hist)
-    land_frac = sum(hist[128:]) / total
+    img = img.crop((0, y0, width, y1)).resize((MAP_W, MAP_H), Image.LANCZOS)
+    if img.size != (MAP_W, MAP_H):
+        raise SystemExit("resized map is %s, the box is %s"
+                         % (img.size, (MAP_W, MAP_H)))
+    # Light touches only: a little less saturation, a little more
+    # contrast, then a whisper of the paper colour so the satellite
+    # photograph sits on the newsprint instead of shouting off it.
+    img = ImageEnhance.Color(img).enhance(0.88)
+    img = ImageEnhance.Contrast(img).enhance(1.06)
+    paper = Image.new("RGB", (MAP_W, MAP_H), PAPER)
+    img = Image.blend(img, paper, 0.10)
+    img.save(target, format="PNG", optimize=True)
     with open(target, "rb") as fh:
         data = fh.read()
+    px = list(img.getdata())
+    n = len(px)
+    mean = tuple(round(sum(c[i] for c in px) / n) for i in range(3))
     return {
         "target": target,
         "bytes": len(data),
         "sha256": hashlib.sha256(data).hexdigest(),
-        "land_fraction": round(land_frac, 3),
+        "size": (MAP_W, MAP_H),
+        "mean_rgb": mean,
     }
 
 
 def main(argv):
     if len(argv) != 3:
         raise SystemExit("usage: recolor_map.py <source.jpg> <world-map.png>")
-    info = recolor(argv[1], argv[2])
+    info = natural_map(argv[1], argv[2])
     print(info)
     return 0
 
