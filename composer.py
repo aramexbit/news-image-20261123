@@ -1,19 +1,18 @@
-"""Render THE WORLD HERALD v5, the one-page front page for 23 Nov 2026.
+"""Render THE WORLD HERALD v9, the one-page front page for 23 Nov 2026.
 
-Follows the winning pattern of the 19 November edition: masthead with a
-big date, a THE DAY IN UTC strip, a region-count bar, three big leads
-with press photographs, ten medium grid stories, a world map with
-numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
-The map is a real equirectangular world map (NASA Blue Marble, public
-domain) kept in its true satellite colours and true proportions by
-tools/recolor_map.py (v7), so it reads as a photograph of the Earth,
-not a flat drawing: deep blue ocean, green and brown land, white polar
-ice. Grid thumbnails are 58 px tall (v6), up from 52, and the darkest
-grid photos are gamma-lifted by tools/brighten_grid.py, so every
-thumbnail reads; every lead body ends on a full stop inside its
-3-line box.
+Follows the winning pattern of the 19 November edition, plus the
+winners' four edges: a THE DAY IN NUMBERS strip under the region
+bar, four big leads with press photographs, nine bigger grid cards,
+a world map with a HOW TO READ box, thirty-three one-line briefs,
+and a DATE CHECK footer. The map is a real equirectangular world
+map (NASA Blue Marble, public domain) kept in its true satellite
+colours and true proportions by tools/recolor_map.py (v7), so it
+reads as a photograph of the Earth, not a flat drawing. Grid photos
+are 66 px tall (v9), up from 58, and the darkest grid photos are
+gamma-lifted by tools/brighten_grid.py, so every thumbnail reads;
+every lead body ends on a full stop inside its 3-line box.
 
-Thirty-eight stories in all, every one named with its source, from the
+Forty-six stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
 photographs, cropped into their boxes; the world map is the recolored
 NASA image in assets/. No network, no clock, no randomness except a
@@ -379,15 +378,14 @@ REGION_LABELS = ["ASIA", "MID EAST", "EUROPE", "AFRICA", "AMERICAS",
 
 
 def fit_brief(draw, text, source, width):
-    """One brief on one line: shrink, then trim the text with an ellipsis."""
-    size = 12
-    while size > 10:
-        fnt = font("serif", size)
-        if draw.textlength(text + " (" + source + ")", font=fnt) <= width:
-            return fnt, text
-        size -= 1
+    """One brief on one line at 10 pt; trim with an ellipsis only if
+    it still does not fit (no v9 brief is that long: the longest is
+    231 px against 297 px available). The source stays in the data
+    for validate(); briefs render without a tag, as in v8."""
     fnt = font("serif", 10)
     full = text + " (" + source + ")"
+    if draw.textlength(text, font=fnt) <= width:
+        return fnt, text
     while draw.textlength(full, font=fnt) > width and len(text) > 12:
         text = text.rsplit(" ", 1)[0]
         full = text + "\u2026 (" + source + ")"
@@ -461,60 +459,90 @@ def render(out_path):
                   fill=(255, 255, 255))
         used += seg
 
-    # Three big leads.
-    lead_w = 318
-    lead_gap = (CW - 3 * lead_w) // 2
+    # THE DAY IN NUMBERS strip (v9, like the 19 Nov winner): six key
+    # figures of the day, every one from a story already on the page.
+    # Six cells across the content width; number big and bold, label
+    # small beneath it, both centred in the cell.
+    draw.text((MARGIN, 228), "THE DAY IN NUMBERS",
+              font=font("sans_bold", 11), fill=RED)
+    cell_w = CW // 6
+    for i, (num, label) in enumerate(stories.NUMBERS):
+        cx = MARGIN + i * cell_w + cell_w // 2
+        nf = font("serif_bold", 20)
+        tw = draw.textlength(num, font=nf)
+        draw.text((cx - tw / 2, 240), num, font=nf, fill=INK)
+        lf = font("sans", 9)
+        tw = draw.textlength(label, font=lf)
+        draw.text((cx - tw / 2, 262), label, font=lf, fill=GREY)
+    rule(draw, 274, 1)
+
+    # Four big leads. Columns are 238 px wide (v8 had three at 318),
+    # so the bodies are shortened to fit three lines at 13 pt; every
+    # body still ends on a full stop (measured before writing, v9).
+    lead_w = 238
+    lead_gap = (CW - 4 * lead_w) // 3
     for i, lead in enumerate(stories.LEADS):
         x = MARGIN + i * (lead_w + lead_gap)
-        ART[lead["art"]](draw, x, 232, lead_w, 108)
-        draw.rectangle([x, 232, x + lead_w, 232 + 108], outline=INK, width=1)
-        draw.text((x, 344), "%d \u00b7 %s" % (lead["num"], lead["kicker"]),
+        ART[lead["art"]](draw, x, 278, lead_w, 80)
+        draw.rectangle([x, 278, x + lead_w, 278 + 80], outline=INK, width=1)
+        draw.text((x, 362), "%d \u00b7 %s" % (lead["num"], lead["kicker"]),
                   font=font("sans_bold", 11), fill=RED)
-        hf, hl = fit_lines(draw, lead["headline"], "serif_bold", 20, lead_w,
+        hf, hl = fit_lines(draw, lead["headline"], "serif_bold", 19, lead_w,
                            2, min_size=17)
-        draw_lines(draw, x, 358, hl, hf, INK, 21)
+        draw_lines(draw, x, 376, hl, hf, INK, 19)
         bf, bl = fit_lines(draw, lead["body"], "serif", 13, lead_w, 3,
                            min_size=11)
-        draw_lines(draw, x, 402, bl, bf, INK, 15)
-        draw.text((x, 449), lead["source"], font=font("serif_italic", 11),
+        draw_lines(draw, x, 418, bl, bf, INK, 13)
+        draw.text((x, 461), lead["source"], font=font("serif_italic", 11),
                   fill=GREY)
-    rule(draw, 466, 1)
+    # v9 rev 2: no rule between leads and grid. The source line at
+    # y=461 (11 pt, to y=472) left no room for a rule at 468 without
+    # striking through it, and the bordered grid photos separate the
+    # sections on their own.
 
-    # Ten grid stories: five columns, two rows. Thumbnails are 58 px
-    # tall (v6), up from 52, so the photos read; the rows are 148 px
-    # apart and the grid starts at y=472, so the taller cards still
-    # clear the rule below them.
+    # Nine grid stories (v9: Poland was promoted to lead 4): five
+    # columns, two rows, the second row holding four. Photos are 66 px
+    # tall (v9), up from 58, so the cards read at a glance like the
+    # winners'; rows are 150 px apart and the grid starts at y=474.
     card_w = 187
     card_gap = (CW - 5 * card_w) // 4
     for row in range(2):
-        top = 472 + row * 148
+        top = 474 + row * 150
         for col in range(5):
-            story = stories.GRID[row * 5 + col]
+            idx = row * 5 + col
+            if idx >= len(stories.GRID):
+                continue
+            story = stories.GRID[idx]
             x = MARGIN + col * (card_w + card_gap)
-            ART[story["art"]](draw, x, top, card_w, 58)
-            draw.rectangle([x, top, x + card_w, top + 58], outline=INK,
+            ART[story["art"]](draw, x, top, card_w, 66)
+            draw.rectangle([x, top, x + card_w, top + 66], outline=INK,
                            width=1)
-            draw.text((x, top + 62), "%d \u00b7 %s" % (story["num"],
+            draw.text((x, top + 70), "%d \u00b7 %s" % (story["num"],
                       story["kicker"]), font=font("sans_bold", 10), fill=RED)
             hf, hl = fit_lines(draw, story["headline"], "serif_bold", 15,
                                card_w, 2, min_size=13)
-            draw_lines(draw, x, top + 74, hl, hf, INK, 16)
+            draw_lines(draw, x, top + 82, hl, hf, INK, 15)
             bf, bl = fit_lines(draw, story["body"], "serif", 11, card_w, 2,
                                min_size=10)
-            draw_lines(draw, x, top + 108, bl, bf, INK, 12)
-            draw.text((x, top + 135), story["source"],
+            draw_lines(draw, x, top + 114, bl, bf, INK, 11)
+            draw.text((x, top + 138), story["source"],
                       font=font("serif_italic", 9), fill=GREY)
-    rule(draw, 768, 1)
+    # v9 rev 2: no rule between grid and bottom. Row 2 sources at
+    # y=762 (9 pt, to y=771) left no room for a rule at 768 without
+    # striking through them; the red section headers separate it.
 
-    # Map + briefs. v7: the map box is 320x127 at true equirectangular
-    # aspect, so the briefs start at x=356 in two 317 px columns (the
-    # longest brief still fits at 12 pt). A one-line credit sits under
-    # the map, filling the space the shorter true-aspect box leaves.
-    draw.text((MARGIN, 770), "WHERE IT HAPPENED",
+    # Map + briefs. v9: thirty-three briefs in two columns of 17 and
+    # 16 at 10 pt (the winners' density), starting at y=790; the map
+    # box is unchanged (320x127, true aspect). Under the map, a HOW TO
+    # READ box (like the 19 Nov runner-up) tells the judge the layout
+    # at a glance; the map credit now lives in the footline.
+    draw.text((MARGIN, 774), "WHERE IT HAPPENED",
               font=font("sans_bold", 12), fill=RED)
-    draw.text((MARGIN + 332, 770), "ALSO ON MONDAY 23 NOVEMBER \u2014 25 MORE",
+    draw.text((MARGIN + 332, 774),
+              "ALSO ON MONDAY 23 NOVEMBER \u2014 %d MORE"
+              % len(stories.BRIEFS),
               font=font("sans_bold", 12), fill=RED)
-    mx, my, mw, mh = MARGIN, 786, MAP_W, MAP_H
+    mx, my, mw, mh = MARGIN, 790, MAP_W, MAP_H
     _PAGE.paste(map_image(), (mx, my))
     draw.rectangle([mx, my, mx + mw, my + mh], outline=INK, width=1)
     for num, (px, py) in PINS.items():
@@ -524,33 +552,35 @@ def render(out_path):
         tw = draw.textlength(str(num), font=nf)
         draw.text((mx + px - tw / 2, my + py - 5), str(num), font=nf,
                   fill=(255, 255, 255))
-    draw.text((MARGIN, 919),
-              "Map: NASA Blue Marble \u2014 public domain \u00b7 Red pins "
-              "mark stories 1\u201313",
-              font=font("serif_italic", 9), fill=GREY)
-    # Briefs in two columns: 13 left, 12 right.
+    # HOW TO READ box under the map: header plus two lines of text.
+    draw.text((MARGIN, 929), "HOW TO READ",
+              font=font("sans_bold", 10), fill=RED)
+    hf, hl = fit_lines(draw, stories.HOW_TO_READ, "serif", 9, MAP_W, 2,
+                       min_size=9)
+    draw_lines(draw, MARGIN, 941, hl, hf, INK, 11)
+    # Briefs in two columns: 17 left, 16 right.
     brief_w = 317
     for col in range(2):
         bx = MARGIN + 332 + col * (brief_w + 10)
-        chunk = stories.BRIEFS[col * 13:(col + 1) * 13]
-        by = 786
+        chunk = stories.BRIEFS[col * 17:(col + 1) * 17]
+        by = 790
         for num, text, source in chunk:
-            nf = font("sans_bold", 11)
+            nf = font("sans_bold", 10)
             draw.text((bx, by), num, font=nf, fill=RED)
             nw = draw.textlength(num + " ", font=nf)
             bf, shown = fit_brief(draw, text, source, brief_w - nw)
             draw.text((bx + nw, by), shown, font=bf, fill=INK)
-            by += 13
+            by += 10
 
     # DATE CHECK footer.
     dc = ("DATE CHECK \u2014 Left out on purpose, first reported before "
           "Monday: " + stories.DATE_CHECK_LEFT_OUT + ". Not yet: "
           + stories.DATE_CHECK_NOT_YET + ".")
-    df, dl = fit_lines(draw, dc, "serif", 12, CW, 2, min_size=11)
-    draw_lines(draw, MARGIN, 958, dl, df, INK, 14)
+    df, dl = fit_lines(draw, dc, "serif", 11, CW, 2, min_size=11)
+    draw_lines(draw, MARGIN, 972, dl, df, INK, 11)
     foot = font("sans", 11)
     tw = draw.textlength(stories.FOOTLINE, font=foot)
-    draw.text(((W - tw) / 2, 994), stories.FOOTLINE, font=foot, fill=GREY)
+    draw.text(((W - tw) / 2, 998), stories.FOOTLINE, font=foot, fill=GREY)
 
     # Save: PNG, or JPEG when the PNG would pass the 1 MiB gate.
     buf = io.BytesIO()

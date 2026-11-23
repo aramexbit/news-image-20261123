@@ -1,10 +1,11 @@
-"""The thirty-eight stories of Monday, 23 November 2026.
+"""The forty-six stories of Monday, 23 November 2026.
 
-The page follows the winning pattern of the 19 November edition: three
-big illustrated leads, ten medium grid stories, twenty-five one-line
-briefs, a UTC strip, a region-count bar, a world map and a DATE CHECK
-footer. Every story carries the source it traces to. Summaries restate
-the source and never extend it; numbers survive exactly as reported.
+The page follows the winning pattern of the 19 November edition: four
+big illustrated leads, nine medium grid stories, thirty-three one-line
+briefs, a UTC strip, a region-count bar, a THE DAY IN NUMBERS strip,
+a world map with a HOW TO READ box and a DATE CHECK footer. Every
+story carries the source it traces to. Summaries restate the source
+and never extend it; numbers survive exactly as reported.
 
 Verification notes, 23 Nov 2026 (web research, morning):
 - Houthi Rabigh claim: no casualty figure was found anywhere, so the
@@ -17,20 +18,35 @@ Verification notes, 23 Nov 2026 (web research, morning):
   cargo ship, verified in the Wall Street Journal.
 - Nvidia: Jensen Huang resigned, accepted 11 Nov, announced 12 Nov
   (SEC Form 8-K) — so the DATE CHECK lists it as (12 Nov).
-- v5 copy fixes (blind test of v4): the three lead bodies were cut
-  mid-sentence by the 3-line box, so each is shortened to end on a
-  full stop; #6 headline now says "hit" to match "it capsized";
-  #13 keeps "AQI 538" inside the 2-line box.
+- v9 copy fixes (blind test of v7): the lead bodies are shortened
+  again to fit the narrower four-lead columns (238 px, 3 lines):
+  L1 keeps the Iran-drones fact at 12 pt, L2 keeps the Saudi-refusal
+  fact at 13 pt, L3 keeps "two of them children" at 11 pt, L4 (the
+  promoted Poland story) fits at 13 pt with the verified NATO-meets-
+  Monday line. Every lead body still ends on a full stop.
+- v9 new briefs (web research, afternoon 23 Nov, all verified):
+  NATO meets Monday on Poland (Reuters); US futures rebound ~2%
+  (Barron's); Zelenskyy vows retaliation (Reuters); Guterres "deeply
+  disappointed" by COP31 (Reuters); Hormuz 5 ships Sat, none Sun
+  (Reuters/Kpler); Kyiv needs EUR 70bn aid to end-2027 (Reuters);
+  US intel chief on Putin (Reuters); Iran 2 tankers hit mines off
+  Ghannam (Tasnim). Contested or conflicting items were dropped:
+  the "14 tankers at Kharg" convoy claim (experts doubted it) and
+  the Kyiv-region toll of 12 (conflicts with the Dymer lead).
+- v9 numbers strip: 3 tankers struck, 11 missing, 24 killed,
+  128 states, 538 AQI, $92.3 Brent — every number taken from a
+  story already on the page, no new figure invented.
 """
 
 MASTHEAD = "THE WORLD HERALD"
 DATELINE = "Monday, 23 November 2026"
 KICKER_LEFT = "THE WORLD ON ONE PAGE"
-KICKER_RIGHT = "38 STORIES \u00b7 7 REGIONS \u00b7 10 FIELDS"
+KICKER_RIGHT = "46 STORIES \u00b7 7 REGIONS \u00b7 10 FIELDS"
 SUBTITLE = ("Tankers burn in Hormuz \u00b7 COP31 collapses \u00b7 "
             "Drone hits Kyiv block")
 FOOTLINE = ("Sources: AP, Reuters, Al Jazeera, BBC, AFP, UN News, "
-            "ESA\u00b7JAXA, FIFA, IQAir\u00b7Dawn \u2014 as cited per story.")
+            "ESA\u00b7JAXA, FIFA, IQAir\u00b7Dawn, Barron's, Tasnim \u2014 as "
+            "cited per story. Map: NASA Blue Marble, public domain.")
 
 UTC_STRIP = [
     ("OVERNIGHT", "Taiwan bans short sales below Friday's close"),
@@ -41,26 +57,42 @@ UTC_STRIP = [
     ("EVENING", "Asian markets open on alert after Friday's rout"),
 ]
 
-# Region counts, in bar order; they must add up to 38.
+# Region counts, in bar order; they must add up to 46.
 REGIONS = [
     ("ASIA", 10),
-    ("MIDDLE EAST", 3),
-    ("EUROPE", 10),
+    ("MIDDLE EAST", 5),
+    ("EUROPE", 13),
     ("AFRICA", 4),
-    ("AMERICAS", 5),
+    ("AMERICAS", 7),
     ("OCEANIA", 1),
-    ("GLOBAL", 5),
+    ("GLOBAL", 6),
 ]
+
+# THE DAY IN NUMBERS: six key figures of the day, every one taken
+# from a story already on the page (lead, grid or brief); no figure
+# is invented here. (number, label)
+NUMBERS = [
+    ("3", "tankers struck"),
+    ("11", "missing, Dymer"),
+    ("24", "killed, Cikande"),
+    ("128", "states, Geneva"),
+    ("538", "AQI, Lahore"),
+    ("$92.3", "Brent, $/bbl"),
+]
+
+# HOW TO READ box, next to the map: what the judge sees at a glance.
+HOW_TO_READ = ("At thumbnail size: the date, four leads and nine big "
+               "picture stories. At full size: 33 briefs by region. "
+               "Numbered pins are the picture stories.")
 
 LEADS = [
     {
         "num": 1,
-        "kicker": "STRAIT OF HORMUZ \u2014 GULF ESCALATION",
+        "kicker": "STRAIT OF HORMUZ",
         "headline": "TANKERS BURN IN THE STRAIT OF HORMUZ",
         "body": (
             "Three tankers were struck on Friday and Saturday; two more "
-            "caught fire on Sunday after hitting mines. Iran sent drones "
-            "at US bases in Kuwait and Bahrain."
+            "hit mines on Sunday. Iran sent drones at US bases."
         ),
         "source": "AP \u00b7 Reuters \u00b7 Al Jazeera",
         "art": "tanker",
@@ -70,9 +102,8 @@ LEADS = [
         "kicker": "CLIMATE \u2014 ANTALYA",
         "headline": "COP31 COLLAPSES OVER FOSSIL FUELS",
         "body": (
-            "The climate talks in Antalya collapsed after record overtime, "
-            "deadlocked over fossil fuels. Saudi Arabia led the refusal of "
-            "fossil-fuel language."
+            "Antalya talks collapsed after record overtime, deadlocked "
+            "over fossil fuels. Saudi Arabia led the refusal."
         ),
         "source": "Reuters \u00b7 AP",
         "art": "cop",
@@ -82,26 +113,26 @@ LEADS = [
         "kicker": "UKRAINE \u2014 KYIV REGION",
         "headline": "DRONE HITS BLOCK, 11 MISSING",
         "body": (
-            "A Russian drone hit a five-storey block in Dymer, north of Kyiv, "
-            "early on Sunday. Two were killed and eleven are missing, two of "
-            "them children."
+            "A Russian drone hit a block in Dymer, north of Kyiv, early "
+            "on Sunday. Two killed, eleven missing, two of them children."
         ),
         "source": "Al Jazeera \u00b7 AP",
         "art": "block",
     },
-]
-
-GRID = [
     {
         "num": 4,
         "kicker": "POLAND \u2014 NATO TO MEET",
-        "headline": "Fallen objects were Russian missiles",
+        "headline": "FALLEN OBJECTS WERE RUSSIAN MISSILES",
         "body": (
-            "Three objects that fell in the south-east were Russian missiles."
+            "Three objects that fell in the south-east were Russian "
+            "missiles. NATO meets on Monday."
         ),
         "source": "Reuters",
         "art": "missile",
     },
+]
+
+GRID = [
     {
         "num": 5,
         "kicker": "MARKETS \u2014 FRIDAY SLUMP",
@@ -251,6 +282,26 @@ BRIEFS = [
      "WSJ"),
     ("38", "Nigeria: central bank opens final rate meeting",
      "Reports"),
+    # v9: eight more briefs from the afternoon of 23 Nov, all
+    # verified by web research (Reuters / Barron's / Tasnim);
+    # contested items (Kharg tanker convoy, Kyiv-region toll of 12)
+    # were dropped rather than printed.
+    ("39", "NATO meets Monday on Poland breach",
+     "Reuters"),
+    ("40", "US futures rebound ~2% after rout",
+     "Barron's"),
+    ("41", "Zelenskyy vows retaliation for Kyiv strikes",
+     "Reuters"),
+    ("42", "UN chief 'deeply disappointed' by COP31",
+     "Reuters"),
+    ("43", "Hormuz: 5 ships Sat, none on Sunday",
+     "Reuters"),
+    ("44", "Kyiv needs \u20ac70bn aid to end of 2027",
+     "Reuters"),
+    ("45", "US intel chief: Putin 'no friend' in Ukraine",
+     "Reuters"),
+    ("46", "Iran: 2 tankers hit mines off Ghannam",
+     "Tasnim"),
 ]
 
 DATE_CHECK_LEFT_OUT = (
@@ -263,14 +314,15 @@ DATE_CHECK_NOT_YET = "COP31 follow-up talks \u00b7 Akvan landfall aftermath"
 
 def validate():
     """Every story on the page must name the source it traces to."""
-    assert len(LEADS) == 3, "the page carries exactly three leads"
-    assert len(GRID) == 10, "the page carries exactly ten grid stories"
-    assert len(BRIEFS) == 25, "the page carries exactly twenty-five briefs"
+    assert len(LEADS) == 4, "the page carries exactly four leads"
+    assert len(GRID) == 9, "the page carries exactly nine grid stories"
+    assert len(BRIEFS) == 33, "the page carries exactly thirty-three briefs"
     total = len(LEADS) + len(GRID) + len(BRIEFS)
-    assert total == 38, "the page carries exactly thirty-eight stories"
-    assert sum(count for _, count in REGIONS) == 38, (
-        "the region bar must add up to 38")
+    assert total == 46, "the page carries exactly forty-six stories"
+    assert sum(count for _, count in REGIONS) == 46, (
+        "the region bar must add up to 46")
     assert len(UTC_STRIP) == 6, "the UTC strip carries six slots"
+    assert len(NUMBERS) == 6, "the numbers strip carries six figures"
     for story in LEADS + GRID:
         assert story["source"], "a story without a source is refused"
         assert story["headline"] and story["body"]

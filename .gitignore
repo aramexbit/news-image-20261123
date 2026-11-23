@@ -20,6 +20,10 @@
 # available at 11 pt, measured with the real serif font) — the
 # source tag stays in stories.py for validate(); briefs render
 # without the tag, as all 25 briefs do.
+# v9 rev 2: the lead-1 kicker ("STRAIT OF HORMUZ — GULF
+# ESCALATION") overflowed the 238 px column into lead 2's kicker,
+# so it is shortened to "STRAIT OF HORMUZ"; the lead/grid source
+# lines are no longer struck through by rules.
 out/
 __pycache__/
 *.pyc

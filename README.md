@@ -10,25 +10,31 @@ A one-page classic newspaper front page summing up the world news of
 Monday 23 November 2026, built for the
 [make.fun news-image-20261123 competition](https://make.fun/c/news-image-20261123).
 
-The layout follows the winning pattern of the 19 November edition:
-three big photographic leads, ten medium grid stories, twenty-five
-one-line briefs, a THE DAY IN UTC strip, a region-count bar, a world
-map with numbered pins, and a DATE CHECK footer. Thirty-eight stories
-in all, every one named with its source.
+The layout follows the winning pattern of the 19 November edition,
+plus the winners' four edges: a THE DAY IN NUMBERS strip, four big
+photographic leads, nine bigger medium grid stories, a world map with
+numbered pins and a HOW TO READ box, and thirty-three one-line
+briefs, with a THE DAY IN UTC strip, a region-count bar, and a DATE
+CHECK footer. Forty-six stories in all, every one named with its
+source.
 
 The leads are the burning Strait of Hormuz (tankers struck over the
 weekend, two more on fire after hitting mines, and Iranian drones sent
-at US bases in Kuwait and Bahrain), the COP31 climate talks collapsing
-in Antalya over fossil fuels, and a Russian drone hitting an apartment
-block in Dymer with eleven people missing. The grid carries Poland
-confirming the fallen objects were Russian missiles, the Friday market
-plunge, sea drones sinking a Russian warship off Libya, the capture of
-cartel boss Chapo Isidro, the Cikande factory fire, South Korea's
-education minister quitting, 128 states backing killer-robot rules,
-the UK hosting the 2035 Women's World Cup, BepiColombo entering
-Mercury orbit, and Lahore's air at AQI 538. Twenty-five one-line
-briefs below the map cover the rest of the day, from Manipur to the
-Baltic.
+at US bases), the COP31 climate talks collapsing in Antalya over
+fossil fuels, a Russian drone hitting an apartment block in Dymer
+with eleven people missing, and Poland confirming the fallen objects
+were Russian missiles, with NATO meeting on Monday. The grid carries
+the Friday market plunge, sea drones hitting a Russian warship off
+Libya, the capture of cartel boss Chapo Isidro, the Cikande factory
+fire, South Korea's education minister quitting, 128 states backing
+killer-robot rules, the UK hosting the 2035 Women's World Cup,
+BepiColombo entering Mercury orbit, and Lahore's air at AQI 538.
+Thirty-three one-line briefs below the map cover the rest of the
+day, from Manipur to the Baltic, including eight from the afternoon:
+NATO meeting on Poland, US futures rebounding, Zelenskyy vowing
+retaliation, the UN chief on COP31, Hormuz shipping counts, Kyiv's
+EUR 70bn aid need, the US intelligence chief on Putin, and two
+tankers hitting mines off Ghannam.
 
 All thirteen pictures on the page are generated press photographs; the
 world map is a real one. Its source is the NASA Blue Marble Next
@@ -82,8 +88,9 @@ MAKEFUN_FORCE_FALLBACK=1 MAKEFUN_OUTPUT_DIR=out python3 main.py
 - `composer.py` — the renderer: masthead, UTC strip, region bar, leads,
   grid, map (real NASA world map + numbered pins), briefs,
   DATE CHECK
-- `stories.py` — the thirty-eight stories of 23 November 2026, each with
-  its source
+- `stories.py` — the forty-six stories of 23 November 2026, each with
+  its source (v9: four leads, nine grid, thirty-three briefs; the
+  numbers strip figures are all taken from stories on the page)
 - `assets/` — the prebuilt `entry.png`, the recolored world map
   (`world-map.png`) plus the thirteen press photographs
   (`photo-*.webp`) and their provenance in `photos.json`
