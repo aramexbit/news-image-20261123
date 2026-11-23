@@ -1,0 +1,4 @@
+# Build outputs of the local render; the grader writes to /output.
+out/
+__pycache__/
+*.pyc
