@@ -3,7 +3,9 @@
 # (composer.py CONTINENTS_LONLAT), projected equirectangular; the
 # thirteen generated press photographs live in assets/ (photo-*.webp
 # plus photos.json with their prompts).
-# assets/entry.png is the prebuilt v4 page for the fallback path.
+# assets/entry.png is the prebuilt v5 page for the fallback path.
+# v5: lead bodies shortened to end on a full stop (blind-test fix),
+# #6 headline "hit" to match "capsized", grid thumbnails 52 px tall.
 out/
 __pycache__/
 *.pyc

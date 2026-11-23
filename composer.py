@@ -1,4 +1,4 @@
-"""Render THE WORLD HERALD v3, the one-page front page for 23 Nov 2026.
+"""Render THE WORLD HERALD v5, the one-page front page for 23 Nov 2026.
 
 Follows the winning pattern of the 19 November edition: masthead with a
 big date, a THE DAY IN UTC strip, a region-count bar, three big leads
@@ -6,6 +6,8 @@ with press photographs, ten medium grid stories, a world map with
 numbered pins, twenty-five one-line briefs, and a DATE CHECK footer.
 The map is drawn from hand-written coastline polygons in lon/lat
 (v4), projected equirectangular, so its continents are the real ones.
+Grid thumbnails are 52 px tall (v5), up from 46, so the photos read
+better; every lead body ends on a full stop inside its 3-line box.
 
 Thirty-eight stories in all, every one named with its source, from the
 stories in stories.py. All thirteen pictures are generated press
@@ -537,18 +539,18 @@ def render(out_path):
         for col in range(5):
             story = stories.GRID[row * 5 + col]
             x = MARGIN + col * (card_w + card_gap)
-            ART[story["art"]](draw, x, top, card_w, 46)
-            draw.rectangle([x, top, x + card_w, top + 46], outline=INK,
+            ART[story["art"]](draw, x, top, card_w, 52)
+            draw.rectangle([x, top, x + card_w, top + 52], outline=INK,
                            width=1)
-            draw.text((x, top + 50), "%d \u00b7 %s" % (story["num"],
+            draw.text((x, top + 56), "%d \u00b7 %s" % (story["num"],
                       story["kicker"]), font=font("sans_bold", 10), fill=RED)
             hf, hl = fit_lines(draw, story["headline"], "serif_bold", 15,
                                card_w, 2, min_size=13)
-            draw_lines(draw, x, top + 62, hl, hf, INK, 16)
+            draw_lines(draw, x, top + 68, hl, hf, INK, 16)
             bf, bl = fit_lines(draw, story["body"], "serif", 11, card_w, 2,
                                min_size=10)
-            draw_lines(draw, x, top + 96, bl, bf, INK, 12)
-            draw.text((x, top + 123), story["source"],
+            draw_lines(draw, x, top + 102, bl, bf, INK, 12)
+            draw.text((x, top + 129), story["source"],
                       font=font("serif_italic", 9), fill=GREY)
     rule(draw, 760, 1)
 

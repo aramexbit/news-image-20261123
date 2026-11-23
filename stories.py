@@ -17,6 +17,10 @@ Verification notes, 23 Nov 2026 (web research, morning):
   cargo ship, verified in the Wall Street Journal.
 - Nvidia: Jensen Huang resigned, accepted 11 Nov, announced 12 Nov
   (SEC Form 8-K) — so the DATE CHECK lists it as (12 Nov).
+- v5 copy fixes (blind test of v4): the three lead bodies were cut
+  mid-sentence by the 3-line box, so each is shortened to end on a
+  full stop; #6 headline now says "hit" to match "it capsized";
+  #13 keeps "AQI 538" inside the 2-line box.
 """
 
 MASTHEAD = "THE WORLD HERALD"
@@ -54,9 +58,9 @@ LEADS = [
         "kicker": "STRAIT OF HORMUZ \u2014 GULF ESCALATION",
         "headline": "TANKERS BURN IN THE STRAIT OF HORMUZ",
         "body": (
-            "Three tankers were struck near the strait on Friday and Saturday; "
-            "two more caught fire on Sunday after hitting mines. Iran sent "
-            "drones at US bases in Kuwait and Bahrain; two were hurt in Bahrain."
+            "Three tankers were struck on Friday and Saturday; two more "
+            "caught fire on Sunday after hitting mines. Iran sent drones "
+            "at US bases in Kuwait and Bahrain."
         ),
         "source": "AP \u00b7 Reuters \u00b7 Al Jazeera",
         "art": "tanker",
@@ -68,8 +72,7 @@ LEADS = [
         "body": (
             "The climate talks in Antalya collapsed after record overtime, "
             "deadlocked over fossil fuels. Saudi Arabia led the refusal of "
-            "fossil-fuel language; the EU and island states rejected a text "
-            "without it."
+            "fossil-fuel language."
         ),
         "source": "Reuters \u00b7 AP",
         "art": "cop",
@@ -81,7 +84,7 @@ LEADS = [
         "body": (
             "A Russian drone hit a five-storey block in Dymer, north of Kyiv, "
             "early on Sunday. Two were killed and eleven are missing, two of "
-            "them children, as rescuers dig through the rubble."
+            "them children."
         ),
         "source": "Al Jazeera \u00b7 AP",
         "art": "block",
@@ -113,7 +116,7 @@ GRID = [
     {
         "num": 6,
         "kicker": "LIBYA \u2014 BENGHAZI",
-        "headline": "Sea drones sink Russian warship",
+        "headline": "Sea drones hit Russian warship",
         "body": (
             "Sea drones hit the corvette Merkury at Benghazi; it capsized."
         ),
@@ -185,7 +188,7 @@ GRID = [
         "kicker": "POLLUTION \u2014 LAHORE",
         "headline": "Lahore world's most polluted",
         "body": (
-            "Lahore was the world's most polluted big city on Sunday, AQI 538."
+            "Lahore was the world's most polluted city on Sunday: AQI 538."
         ),
         "source": "IQAir \u00b7 Dawn",
         "art": "smog",
